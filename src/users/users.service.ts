@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -52,8 +53,18 @@ export class UsersService {
     return newUser
   }
 
-  findAll() {
-    return `This action returns all users`;
+  // we can input a role to find the users with this role
+  findAllUsers(@Query() role?: 'ADMIN' | 'SUB_ADMIN' | 'USER') {
+    if (role) {
+      const rolesArray = this.users.filter(user => user.role === role)
+      if (rolesArray.length === 0) {
+        throw new NotFoundException('User Role Not Found!')
+      }
+
+      return rolesArray
+    }
+
+    return this.users
   }
 
   findOne(id: number) {

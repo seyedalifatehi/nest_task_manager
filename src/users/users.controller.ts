@@ -12,9 +12,10 @@ export class UsersController {
     return this.usersService.createUser(createUserDto);
   }
 
+  // we can input a role to find the users with this role
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAllUsers();
   }
 
   @Get(':id')
