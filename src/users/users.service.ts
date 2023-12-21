@@ -67,8 +67,14 @@ export class UsersService {
     return this.users
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOneUser(id: number) {
+    const foundUser = this.users.find(user => user.id === id)
+
+    if (foundUser === null) {
+      throw new NotFoundException('User Not Found');
+    }
+
+    return foundUser
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
