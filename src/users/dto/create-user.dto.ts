@@ -5,14 +5,8 @@ import { IsEnum, IsEmail, IsNotEmpty, IsString } from "class-validator";
 export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    username: string;
 
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
-    @IsEnum(['ADMIN', 'SUB_ADMIN', 'USER'], {
-        message: 'The entered role is not valid'
-    })
-    role: 'ADMIN' | 'SUB_ADMIN' | 'USER';
+    @IsString()
+    password: string;
 }

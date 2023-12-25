@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
+import { AuthGuard } from '../auth/auth.guard';
+import { ApiOperation } from '@nestjs/swagger';
 
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -12,7 +15,11 @@ export class UsersController {
   }
 
   @Get()
-  findAll(@Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN') {
+  findAll(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN') {
+    const reqUser = req.user
+    if (reqUser.role === 'USER') {
+      throw new ForbiddenException('only admin and sub admins can see all the users')
+    }
     return this.usersService.findAll(role);
   }
 
@@ -27,7 +34,10 @@ export class UsersController {
   }
 
   @Delete(':username')
-  removeUser(@Param('username') username: string) {
-    return this.usersService.removeUser(username);
+  @ApiOperation({
+    summary: 'حذف کاربر',
+  })
+  async remove(@Param('username') username: string): Promise<void> {
+    return await this.usersService.removeUser(username);
   }
 }

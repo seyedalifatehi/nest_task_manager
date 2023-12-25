@@ -4,7 +4,6 @@ import { IsEnum, IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 @Collection('Users')
 export class UserEntity extends ArangoDocument {
-    @IsNotEmpty()
     @ApiProperty({ description: 'user id', example: '1' })
     user_id?: string;
 
