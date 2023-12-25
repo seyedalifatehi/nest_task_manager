@@ -20,8 +20,8 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(): Promise<ResultList<UserEntity>> {
+    return await this.userRepository.findAll();
   }
 
   async findOneUser(username: string): Promise<UserEntity | null> {
