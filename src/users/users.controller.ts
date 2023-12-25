@@ -10,11 +10,17 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'ثبتنام کاربر',
+  })
   createUser(@Body() user: UserEntity) {
     return this.usersService.createUser(user);
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'گرفتن تمامی کاربران',
+  })
   findAll(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN') {
     const reqUser = req.user
     if (reqUser.role === 'USER') {
@@ -24,6 +30,9 @@ export class UsersController {
   }
 
   @Patch('increaseRole/:username')
+  @ApiOperation({
+    summary: 'افزایش سمت یک کاربر',
+  })
   increaseRole(@Request() req, @Param('username') username: string) {
     const reqUser = req.user
     if (reqUser.role !== 'ADMIN') {
@@ -33,6 +42,9 @@ export class UsersController {
   }
 
   @Get(':username')
+  @ApiOperation({
+    summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
+  })
   findOneUser(@Request() req, @Param('username') username: string) {
     const reqUser = req.user
     if (reqUser.role === 'USER') {

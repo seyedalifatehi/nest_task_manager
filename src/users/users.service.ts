@@ -20,6 +20,10 @@ export class UsersService {
       if ((await users).results[i].email === user.email) {
         throw new ForbiddenException('this email already exists')
       }
+
+      if ((await users).results[i].username === user.username) {
+        throw new ForbiddenException('this username already exists')
+      }
     }
     
     user.role = 'USER'

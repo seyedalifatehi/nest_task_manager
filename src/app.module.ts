@@ -9,6 +9,7 @@ import { UserEntity } from './users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './auth/constants';
 import { AuthController } from './auth/auth.controller';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthController } from './auth/auth.controller';
       secret: jwtConstants.secret,
       // signOptions: { expiresIn: '3600s' },
     }),
+    TasksModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService, UsersService],
