@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
-  ) {}
+  ) {}  
 
   async createUser(user: UserEntity): Promise<UserEntity> {
     return await this.userRepository.save(user);
