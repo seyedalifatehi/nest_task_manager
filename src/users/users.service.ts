@@ -27,11 +27,26 @@ export class UsersService {
     return await this.userRepository.findOneBy({ username })
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async updateUser(
+    username: string,
+    updatedUser: Partial<UserEntity>
+    ): Promise<ArangoNewOldResult<any>> {
+      // checking user existance
+      const existingUser = await this.userRepository.findOneBy({ username })
+      if (!existingUser) {
+        throw new NotFoundException('username not found')
+      }
 
+      // updating wanted user field 
+      Object.assign(existingUser, updatedUser)
+
+      // applying update to user field in database
+      const updatedDocument = await this.userRepository.update(existingUser)
+      
+      return updatedDocument
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  removeUser(username: string) {
+    
   }
 }
