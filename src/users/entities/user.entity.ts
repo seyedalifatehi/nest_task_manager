@@ -4,10 +4,6 @@ import { IsEnum, IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 @Collection('Users')
 export class UserEntity extends ArangoDocument {
-    @IsString()
-    @ApiProperty({ description: 'user id', example: '1' })
-    user_id?: string;
-
     @IsNotEmpty()
     @IsString()
     @ApiProperty({ description: 'username', example: 'john_doe' })
@@ -23,6 +19,9 @@ export class UserEntity extends ArangoDocument {
     @ApiProperty({ description: 'email', example: 'example@example.com' })
     email: string;
 
+    @IsEnum(['ADMIN', 'SUB_ADMIN', 'USER'], {
+        message: 'The entered role is not valid'
+    })
     @ApiProperty({ description: 'role', example: 'ADMIN' })
     role: 'ADMIN' | 'SUB_ADMIN' | 'USER';
 }

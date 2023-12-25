@@ -18,26 +18,38 @@ export class UsersController {
   findAll(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN') {
     const reqUser = req.user
     if (reqUser.role === 'USER') {
-      throw new ForbiddenException('only admin and sub admins can see all the users')
+      throw new ForbiddenException('only admin and sub admins can see users')
     }
     return this.usersService.findAll(role);
   }
 
-  @Get(':username')
-  findOneUser(@Param('username') username: string) {
-    return this.usersService.findOneUserByUsername(username);
+  @Patch('increaseRole/:username')
+  increaseRole(@Request() req, @Param('username') username: string) {
+    const reqUser = req.user
+    if (reqUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can increase users roles')
+    }
+    return this.usersService.updateUser(username, {"role": "SUB_ADMIN"});
   }
 
-  @Patch(':username')
-  updateUser(@Param('username') username: string, @Body() updeatedUser: Partial<UserEntity>) {
-    return this.usersService.updateUser(username, updeatedUser);
+  @Get(':username')
+  findOneUser(@Request() req, @Param('username') username: string) {
+    const reqUser = req.user
+    if (reqUser.role === 'USER') {
+      throw new ForbiddenException('only admin and sub admins can see users')
+    }
+    return this.usersService.findOneUserByUsername(username);
   }
 
   @Delete(':username')
   @ApiOperation({
     summary: 'حذف کاربر',
   })
-  async remove(@Param('username') username: string): Promise<void> {
+  async remove(@Request() req, @Param('username') username: string): Promise<void> {
+    const reqUser = req.user
+    if (reqUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can delete users')
+    }
     return await this.usersService.removeUser(username);
   }
 }

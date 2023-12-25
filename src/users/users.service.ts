@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   InjectRepository,
   ArangoRepository,
@@ -15,6 +15,14 @@ export class UsersService {
   ) {}  
 
   async createUser(user: UserEntity): Promise<UserEntity> {
+    const users = this.userRepository.findAll()
+    for (let i = 0; i < (await users).totalCount; i++) {
+      if ((await users).results[i].email === user.email) {
+        throw new ForbiddenException('this email already exists')
+      }
+    }
+    
+    user.role = 'USER'
     return await this.userRepository.save(user);
   }
 
@@ -54,7 +62,7 @@ export class UsersService {
       // applying update to user field in database
       const updatedDocument = await this.userRepository.update(existingUser)
       
-      return updatedDocument
+      return updatedDocument ? updatedDocument : null
   }
 
   async removeUser(username: string): Promise<void> {
