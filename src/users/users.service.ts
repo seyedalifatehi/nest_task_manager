@@ -1,45 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  InjectRepository,
+  ArangoRepository,
+  ResultList,
+  ArangoNewOldResult,
+} from 'nest-arango';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private users = [
-    {
-        "id": 1,
-        "name": "Mohammad Reza Baghery",
-        "email": "baghery1234@gmail.com",
-        "role": "ADMIN",
-    },
-
-    {
-        "id": 2,
-        "name": "Arian Amini",
-        "email": "arian1234@gmail.com",
-        "role": "USER",
-    },
-
-    {
-        "id": 3,
-        "name": "Mollnoori",
-        "email": "mollnoori1234@gmail.com",
-        "role": "USER",
-    },
-
-    {
-        "id": 4,
-        "name": "doctor",
-        "email": "doctor@gmail.com",
-        "role": "USER",
-    },
-
-    {
-        "id": 5,
-        "name": "Seyed Ali Fatehi",
-        "email": "afatehi07@gmail.com",
-        "role": "SUB_ADMIN",
-    },
-  ]
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: ArangoRepository<UserEntity>,
+  ) {}
 
   create(createUserDto: CreateUserDto) {
 
