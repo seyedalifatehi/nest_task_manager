@@ -90,6 +90,9 @@ export class UsersService {
   }
 
   removeUser(id: number) {
-    return `This action removes a #${id} user`;
+    const removedUser = this.findOneUser(id)
+    this.users = this.users.filter(user => user.id !== id)
+
+    return removedUser
   }
 }
