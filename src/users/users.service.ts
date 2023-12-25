@@ -77,11 +77,19 @@ export class UsersService {
     return foundUser
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  updateUser(id: number, updateUserDto: UpdateUserDto) {
+    // we want to map over the users
+    this.users = this.users.map(user => {
+        if (user.id === id) {
+            return { ...user, ...updateUserDto }
+        }
+        return user
+    })
+    
+    return this.findOneUser(id) 
   }
 
-  remove(id: number) {
+  removeUser(id: number) {
     return `This action removes a #${id} user`;
   }
 }
