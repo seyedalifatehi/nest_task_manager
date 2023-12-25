@@ -5,7 +5,6 @@ import {
   ResultList,
   ArangoNewOldResult,
 } from 'nest-arango';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
@@ -46,7 +45,7 @@ export class UsersService {
       return updatedDocument
   }
 
-  removeUser(username: string) {
-    
+  async removeUser(username: string): Promise<void> {
+    await this.userRepository.removeBy({ username });
   }
 }
