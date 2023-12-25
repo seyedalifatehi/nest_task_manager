@@ -25,7 +25,7 @@ export class UsersController {
 
   @Get(':username')
   findOneUser(@Param('username') username: string) {
-    return this.usersService.findOneUser(username);
+    return this.usersService.findOneUserByUsername(username);
   }
 
   @Patch(':username')

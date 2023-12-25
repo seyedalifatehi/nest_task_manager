@@ -30,8 +30,12 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
-  async findOneUser(username: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ username })
+  async findOneUserByEmail(email: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ email })
+  }
+
+  async findOneUserByUsername(email: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ email })
   }
 
   async updateUser(
