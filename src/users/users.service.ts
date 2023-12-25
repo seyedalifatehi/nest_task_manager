@@ -18,7 +18,15 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async findAll(): Promise<ResultList<UserEntity>> {
+  async findAll(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
+    if (role) {
+      const rolesArray = this.userRepository.findManyBy({ role });
+      if ((await rolesArray).results.length === 0) {
+          throw new NotFoundException('User Role Not Found')
+      }
+      return rolesArray;
+    }
+    
     return await this.userRepository.findAll();
   }
 
