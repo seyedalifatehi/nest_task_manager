@@ -5,7 +5,6 @@ import {
   ResultList,
   ArangoNewOldResult,
 } from 'nest-arango';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -16,7 +15,7 @@ export class UsersService {
     private readonly userRepository: ArangoRepository<UserEntity>,
   ) {}
 
-  async create(user: UserEntity): Promise<UserEntity> {
+  async createUser(user: UserEntity): Promise<UserEntity> {
     return await this.userRepository.save(user);
   }
 
@@ -28,8 +27,8 @@ export class UsersService {
     return await this.userRepository.findOneBy({ username })
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+
   }
 
   remove(id: number) {

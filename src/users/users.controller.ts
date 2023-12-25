@@ -9,8 +9,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() user: UserEntity) {
-    return this.usersService.create(user);
+  createUser(@Body() user: UserEntity) {
+    return this.usersService.createUser(user);
   }
 
   @Get()
