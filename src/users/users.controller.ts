@@ -37,7 +37,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'حذف کاربر',
   })
-  async remove(@Param('username') username: string): Promise<void> {7
+  async remove(@Param('username') username: string): Promise<void> {
     return await this.usersService.removeUser(username);
   }
 }
