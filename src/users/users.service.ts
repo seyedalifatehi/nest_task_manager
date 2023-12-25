@@ -16,17 +16,16 @@ export class UsersService {
     private readonly userRepository: ArangoRepository<UserEntity>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-
-    return 'This action adds a new user';
+  async create(user: UserEntity): Promise<UserEntity> {
+    return await this.userRepository.save(user);
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOneUser(username: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ username })
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
