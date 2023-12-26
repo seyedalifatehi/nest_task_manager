@@ -43,10 +43,27 @@ export class UsersController {
     }
     const wantedUser = this.usersService.findOneUserByUsername(username)
     if ((await wantedUser).role !== 'USER') {
-      throw new ForbiddenException('you cannot change this user\'s role')
+      throw new ForbiddenException('you cannot increase this user\'s role')
     }
 
     return this.usersService.updateUser(username, {"role": "SUB_ADMIN"});
+  }
+
+  @Patch('decreaseRole/:username')
+  @ApiOperation({
+    summary: 'افزایش سمت یک کاربر',
+  })
+  async decreaseRole(@Request() req, @Param('username') username: string): Promise<ArangoNewOldResult<UserEntity>> {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can decrease sub admins\' roles')
+    }
+    const wantedUser = this.usersService.findOneUserByUsername(username)
+    if ((await wantedUser).role !== 'SUB_ADMIN') {
+      throw new ForbiddenException('you cannot decrease this user\'s role')
+    }
+
+    return this.usersService.updateUser(username, {"role": "USER"});
   }
 
   @Get(':username')

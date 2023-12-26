@@ -57,7 +57,7 @@ export class UsersService {
       // checking user existance
       const existingUser = await this.userRepository.findOneBy({ username })
       if (!existingUser) {
-        throw new NotFoundException('username not found')
+        throw new NotFoundException('user not found')
       }
 
       // updating wanted user field 
