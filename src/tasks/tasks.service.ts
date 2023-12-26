@@ -4,7 +4,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
-  create(createTaskDto: CreateTaskDto) {
+  defineTask(createTaskDto: CreateTaskDto) {
     return 'This action adds a new task';
   }
 
