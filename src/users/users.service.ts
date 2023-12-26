@@ -53,7 +53,7 @@ export class UsersService {
   async updateUser(
     username: string,
     updatedUser: Partial<UserEntity>
-    ): Promise<ArangoNewOldResult<any>> {
+    ): Promise<ArangoNewOldResult<UserEntity>> {
       // checking user existance
       const existingUser = await this.userRepository.findOneBy({ username })
       if (!existingUser) {

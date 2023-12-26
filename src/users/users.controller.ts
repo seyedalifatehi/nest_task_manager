@@ -23,8 +23,8 @@ export class UsersController {
     summary: 'گرفتن تمامی کاربران',
   })
   async findAll(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
-    const reqUser = req.user
-    if (reqUser.role !== 'USER') {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role !== 'USER') {
       // Allow ADMIN and SUB_ADMIN roles to see all users
       return this.usersService.findAll(role);
     } else {
@@ -37,8 +37,8 @@ export class UsersController {
     summary: 'افزایش سمت یک کاربر',
   })
   async increaseRole(@Request() req, @Param('username') username: string): Promise<ArangoNewOldResult<UserEntity>> {
-    const reqUser = req.user
-    if (reqUser.role !== 'ADMIN') {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can increase users roles')
     }
     return this.usersService.updateUser(username, {"role": "SUB_ADMIN"});
@@ -49,8 +49,8 @@ export class UsersController {
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
   })
   async findOneUser(@Request() req, @Param('username') username: string): Promise<UserEntity> {
-    const reqUser = req.user
-    if (reqUser.role === 'USER') {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role === 'USER') {
       throw new ForbiddenException('only admin and sub admins can see users')
     }
     return this.usersService.findOneUserByUsername(username);
@@ -61,8 +61,8 @@ export class UsersController {
     summary: 'حذف کاربر',
   })
   async remove(@Request() req, @Param('username') username: string): Promise<void> {
-    const reqUser = req.user
-    if (reqUser.role !== 'ADMIN') {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users')
     }
     return await this.usersService.removeUser(username);
