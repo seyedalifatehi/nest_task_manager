@@ -41,6 +41,11 @@ export class UsersController {
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can increase users roles')
     }
+    const wantedUser = this.usersService.findOneUserByUsername(username)
+    if ((await wantedUser).role !== 'USER') {
+      throw new ForbiddenException('you cannot change this user\'s role')
+    }
+
     return this.usersService.updateUser(username, {"role": "SUB_ADMIN"});
   }
 
