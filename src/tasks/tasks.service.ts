@@ -3,6 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ArangoNewOldResult, ArangoRepository, InjectRepository, ResultList } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
+import { promises } from 'dns';
 
 @Injectable()
 export class TasksService {
@@ -38,7 +39,7 @@ export class TasksService {
     return updatedDocument ? updatedDocument : null
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async removeTask(_id: string): Promise<void> {
+    await this.taskRepository.removeBy({ _id })
   }
 }
