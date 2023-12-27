@@ -24,14 +24,7 @@ export class UsersController {
     summary: 'گرفتن تمامی کاربران',
   })
   async findAllUsers(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    if ((await currentUser).role !== 'USER') {
-      // Allow ADMIN and SUB_ADMIN roles to see all users
-      return this.usersService.findAllUsers(role);
-    } else {
-      // For USER role, restrict access to their own data
-      throw new ForbiddenException('only admin and sub admins can see all the users ')
-    }
+    return this.usersService.findAllUsers(role);
   }
 
   @UseGuards(AuthGuard)
