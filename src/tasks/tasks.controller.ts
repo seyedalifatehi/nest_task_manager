@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
 import { ResultList } from 'nest-arango';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(
@@ -27,7 +29,8 @@ export class TasksController {
 
   @Get()
   async showAllTasks(@Request() req): Promise<ResultList<TaskEntity>> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    const reqUser = await req.user
+    const currentUser = this.usersService.findOneUserByEmail(reqUser.email)
     
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can see all of the tasks')
