@@ -1,7 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
 
@@ -27,14 +25,18 @@ export class TasksController {
   }
 
   @Get()
-  async showAllTasks() {
+  async showAllTasks(@Request() req) {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     
+    if ((await currentUser).role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can see all of the tasks')
+    }
     return await this.tasksService.showAllTasks();
   }
 
   @Patch(':taskId')
-  update(@Param('taskId') taskId: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.updateTask(taskId, updateTaskDto);
+  update(@Param('taskId') taskId: string, @Body() updatedTask: Partial<TaskEntity>) {
+    return this.tasksService.updateTask(taskId, updatedTask);
   }
 
   @Delete(':taskId')

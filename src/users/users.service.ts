@@ -31,6 +31,7 @@ export class UsersService {
     }
     
     user.role = 'USER'
+    user.userTaskIds = []
     return await this.userRepository.save(user);
   }
 
