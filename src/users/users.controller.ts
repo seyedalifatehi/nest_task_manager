@@ -23,7 +23,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن تمامی کاربران',
   })
-  async findAllUsers(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
+  async findAllUsers(@Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
     return this.usersService.findAllUsers(role);
   }
 
