@@ -27,8 +27,9 @@ export class TasksController {
   }
 
   @Get()
-  async findAll() {
-    return this.tasksService.showAllTasks();
+  async showAllTasks() {
+    
+    return await this.tasksService.showAllTasks();
   }
 
   @Patch(':taskId')

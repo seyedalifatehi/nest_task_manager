@@ -22,15 +22,16 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن تمامی کاربران',
   })
-  async findAll(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
+  async findAllUsers(@Request() req, @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     if ((await currentUser).role !== 'USER') {
       // Allow ADMIN and SUB_ADMIN roles to see all users
-      return this.usersService.findAll(role);
+      return this.usersService.findAllUsers(role);
     } else {
       // For USER role, restrict access to their own data
       throw new ForbiddenException('only admin and sub admins can see all the users ')
-    }}
+    }
+  }
 
   @Patch('increaseRole/:username')
   @ApiOperation({
@@ -64,6 +65,12 @@ export class UsersController {
     }
 
     return this.usersService.updateUser(username, {"role": "USER"});
+  }
+
+  @Get('showUsersTasks')
+  async showUsersTasks(@Request() req) {
+    const user = this.usersService.findOneUserByEmail(req.user.email)
+    return await this.usersService.showUsersTasks(await user);
   }
 
   @Get(':username')

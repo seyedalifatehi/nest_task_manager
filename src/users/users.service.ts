@@ -6,13 +6,17 @@ import {
   ArangoNewOldResult,
 } from 'nest-arango';
 import { UserEntity } from './entities/user.entity';
+import { TaskEntity } from 'src/tasks/entities/task.entity';
+import { TasksService } from 'src/tasks/tasks.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
-  ) {}  
+  
+    private readonly taskService: TasksService,
+    ) {}  
 
   async createUser(user: UserEntity): Promise<UserEntity> {
     const users = this.userRepository.findAll()
@@ -30,7 +34,7 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async findAll(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
+  async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<ResultList<UserEntity>> {
     if (role) {
       const rolesArray = this.userRepository.findManyBy({ role });
       if ((await rolesArray).results.length === 0) {
@@ -52,6 +56,14 @@ export class UsersService {
 
   async findOneUserById(_id: string): Promise<UserEntity | null> {
     return await this.userRepository.findOneBy({ _id })
+  }
+
+  async showUsersTasks(user: UserEntity): Promise<Array<TaskEntity>> {
+    let tasks : TaskEntity[]
+    for (let i = 0; i < user.userTaskIds.length; i++) {
+      tasks.push(await this.taskService.findOneTaskById(user.userTaskIds[i]))
+    }
+    return tasks
   }
 
   async updateUser(
