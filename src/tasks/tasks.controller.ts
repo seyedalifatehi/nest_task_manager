@@ -39,7 +39,7 @@ export class TasksController {
   @Get('subAdmins')
   async showTasksOfSubAdmins(@Request() req): Promise<ResultList<TaskEntity>> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    if ((await currentUser).role !== 'USER') {
+    if ((await currentUser).role === 'USER') {
       throw new ForbiddenException('only admin and sub admins can see the tasks of sub admins')
     }
     return await this.tasksService.showTasksOfSubAdmins();
