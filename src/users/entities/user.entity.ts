@@ -24,4 +24,8 @@ export class UserEntity extends ArangoDocument {
     })
     @ApiProperty({ description: 'role', example: 'ADMIN' })
     role: 'ADMIN' | 'SUB_ADMIN' | 'USER';
+
+    @IsString()
+    @ApiProperty({ description: 'role', example: 'task id' })
+    userTaskIds: string[]
 }
