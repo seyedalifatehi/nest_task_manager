@@ -16,8 +16,16 @@ export class TasksService {
     return await this.taskRepository.save(task)
   }
 
-  async showAllTasks(): Promise<ResultList<TaskEntity>> {
-    return await this.taskRepository.findAll()
+  async showTasksOfAdmin(): Promise<ResultList<TaskEntity>> {
+    return await this.taskRepository.findManyBy({ role: 'ADMIN' })
+  }
+
+  async showTasksOfSubAdmins(): Promise<ResultList<TaskEntity>> {
+    return await this.taskRepository.findManyBy({ role: 'SUB_ADMIN' })
+  }
+
+  async showTasksOfUsers(): Promise<ResultList<TaskEntity>> {
+    return await this.taskRepository.findManyBy({ role: 'USER' })
   }
 
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {

@@ -27,15 +27,31 @@ export class TasksController {
     return this.tasksService.defineTask(task, (await wantedUser)._id);
   }
 
-  @Get()
-  async showAllTasks(@Request() req): Promise<ResultList<TaskEntity>> {
-    const reqUser = await req.user
-    const currentUser = this.usersService.findOneUserByEmail(reqUser.email)
-    
+  @Get('admin')
+  async showTasksOfAdmin(@Request() req): Promise<ResultList<TaskEntity>> {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can see all of the tasks')
     }
-    return await this.tasksService.showAllTasks();
+    return await this.tasksService.showTasksOfAdmin();
+  }
+
+  @Get('subAdmins')
+  async showTasksOfSubAdmins(@Request() req): Promise<ResultList<TaskEntity>> {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role !== 'USER') {
+      throw new ForbiddenException('only admin and sub admins can see the tasks of sub admins')
+    }
+    return await this.tasksService.showTasksOfSubAdmins();
+  }
+
+  @Get('users')
+  async showTasksOfUsers(@Request() req): Promise<ResultList<TaskEntity>> {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    if ((await currentUser).role === 'USER') {
+      throw new ForbiddenException('only admin and sub admins can see the tasks of users')
+    }
+    return await this.tasksService.showTasksOfUsers();
   }
 
   @Patch(':taskId')
