@@ -1,6 +1,6 @@
 import { Collection, ArangoDocument } from 'nest-arango';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString } from "class-validator";
 
 @Collection('Users')
 export class UserEntity extends ArangoDocument {

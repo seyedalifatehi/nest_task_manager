@@ -14,7 +14,6 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
-  
     private readonly taskService: TasksService,
     ) {}  
 
