@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { ArangoRepository, InjectRepository } from 'nest-arango';
+import { ArangoRepository, InjectRepository, ResultList } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
 
 @Injectable()
@@ -18,8 +18,8 @@ export class TasksService {
     return await this.taskRepository.save(task)
   }
 
-  showAllTasks() {
-    return `This action returns all tasks`;
+  async showAllTasks(): Promise<ResultList<TaskEntity>> {
+    return await this.taskRepository.findAll()
   }
 
   findOne(id: number) {
