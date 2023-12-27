@@ -13,7 +13,7 @@ export class TasksController {
   ) {}
 
   @Post()
-  async create(@Request() req, @Body() task: TaskEntity, username: string) {
+  async defineTask(@Request() req, @Body() task: TaskEntity, username: string) {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     const wantedUser = this.usersService.findOneUserByUsername(username)
 
@@ -27,22 +27,28 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.tasksService.showAllTasks();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    // return this.tasksService.findOne(id);
+  @Patch(':taskId')
+  update(@Param('taskId') taskId: string, @Body() updateTaskDto: UpdateTaskDto) {
+    return this.tasksService.updateTask(taskId, updateTaskDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.updateTask(id, updateTaskDto);
-  }
+  @Delete(':taskId')
+  async removeTask(@Request() req, @Param('taskId') taskId: string) {
+    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
+    const wantedTask = this.tasksService.findOneTaskById(taskId)
+    const userId = (await wantedTask).userId
+    const wantedUser = this.usersService.findOneUserById(userId)
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
+    if ((await currentUser).role !== 'ADMIN') {
+      if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {
+        throw new ForbiddenException('you are not allowed to remove the task of this user')
+      }
+    }
+
+    return await this.tasksService.removeTask(taskId);
   }
 }

@@ -50,6 +50,10 @@ export class UsersService {
     return await this.userRepository.findOneBy({ username })
   }
 
+  async findOneUserById(_id: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ _id })
+  }
+
   async updateUser(
     username: string,
     updatedUser: Partial<UserEntity>

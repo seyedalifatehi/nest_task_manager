@@ -23,9 +23,9 @@ export class TasksService {
     return await this.taskRepository.findAll()
   }
 
-  // async findOne(taskId: string) {
-
-  // }
+  async findOneTaskById(_id: string): Promise<TaskEntity | null> {
+    return await this.taskRepository.findOneBy({ _id })
+  }
 
   async updateTask(_id: string, updatedTask: Partial<TaskEntity>): Promise<ArangoNewOldResult<TaskEntity>> {
     const wantedTask = await this.taskRepository.findOneBy({ _id })
