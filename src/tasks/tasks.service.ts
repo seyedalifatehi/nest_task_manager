@@ -1,14 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { ArangoRepository, InjectRepository } from 'nest-arango';
+import { TaskEntity } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
-  defineTask(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  constructor(
+    @InjectRepository(TaskEntity)
+    private readonly taskRepository: ArangoRepository<TaskEntity>,
+  ) {}  
+
+  async defineTask(task: TaskEntity, userId: string): Promise<TaskEntity> {
+    task.isCompleted = false
+    task.userId = userId
+    
+    return await this.taskRepository.save(task)
   }
 
-  findAll() {
+  showAllTasks() {
     return `This action returns all tasks`;
   }
 

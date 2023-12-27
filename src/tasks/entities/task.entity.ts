@@ -1,10 +1,10 @@
 export class Task {}
 import { Collection, ArangoDocument } from 'nest-arango';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsBoolean } from "class-validator";
 
-@Collection('Users')
-export class UserEntity extends ArangoDocument {
+@Collection('Tasks')
+export class TaskEntity extends ArangoDocument {
     @IsString()
     @ApiProperty({ description: 'userId', example: 'user/1111' })
     userId: string;
@@ -16,5 +16,9 @@ export class UserEntity extends ArangoDocument {
 
     @IsString()
     @ApiProperty({ description: 'description', example: 'description' })
-    description: string;
+    description?: string;
+
+    @IsBoolean()
+    @ApiProperty({ description: 'isCompleted', example: 'true' })
+    isCompleted: boolean;
 }
