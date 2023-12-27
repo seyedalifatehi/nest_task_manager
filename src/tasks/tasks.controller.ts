@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenEx
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
+import { ResultList } from 'nest-arango';
 
 @Controller('tasks')
 export class TasksController {
@@ -11,7 +12,7 @@ export class TasksController {
   ) {}
 
   @Post()
-  async defineTask(@Request() req, @Body() task: TaskEntity, username: string) {
+  async defineTask(@Request() req, @Body() task: TaskEntity, username: string): Promise<TaskEntity> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     const wantedUser = this.usersService.findOneUserByUsername(username)
 
@@ -25,7 +26,7 @@ export class TasksController {
   }
 
   @Get()
-  async showAllTasks(@Request() req) {
+  async showAllTasks(@Request() req): Promise<ResultList<TaskEntity>> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     
     if ((await currentUser).role !== 'ADMIN') {
@@ -40,7 +41,7 @@ export class TasksController {
   }
 
   @Delete(':taskId')
-  async removeTask(@Request() req, @Param('taskId') taskId: string) {
+  async removeTask(@Request() req, @Param('taskId') taskId: string): Promise<void> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     const wantedTask = this.tasksService.findOneTaskById(taskId)
     const userId = (await wantedTask).userId
