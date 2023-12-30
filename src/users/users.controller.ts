@@ -48,7 +48,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch('decreaseRole/:username')
   @ApiOperation({
-    summary: 'افزایش سمت یک کاربر',
+    summary: 'کاهش سمت یک کاربر',
   })
   async decreaseRole(@Request() req, @Param('username') username: string): Promise<ArangoNewOldResult<UserEntity>> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
@@ -65,6 +65,9 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get('showUsersTasks')
+  @ApiOperation({
+    summary: 'نشان دادن تسک های کاربر وارد شده',
+  })
   async showUsersTasks(@Request() req) {
     const user = this.usersService.findOneUserByEmail(req.user.email)
     return await this.usersService.showUsersTasks(await user);

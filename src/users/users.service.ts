@@ -59,12 +59,26 @@ export class UsersService {
   }
 
   async showUsersTasks(user: UserEntity): Promise<Array<TaskEntity>> {
-    let tasks : TaskEntity[]
-    for (let i = 0; i < user.userTaskIds.length; i++) {
-      tasks.push(await this.taskService.findOneTaskById(user.userTaskIds[i]))
+    // Check if user and userTaskIds are defined
+    if (!user || !user.userTaskIds) {
+      // Handle the case where user or userTaskIds is undefined
+      // Throw an error, return an empty array, or handle it accordingly
+      throw new ForbiddenException('Invalid user or userTaskIds');
     }
-    return tasks
+  
+    // Initialize tasks array
+    let tasks: TaskEntity[] = [];
+  
+    // Loop through userTaskIds
+    for (let i = 0; i < user.userTaskIds.length; i++) {
+      // Ensure taskService and findOneTaskById are properly defined
+      const task = await this.taskService.findOneTaskById(user.userTaskIds[i]);
+      tasks.push(task);
+    }
+  
+    return tasks;
   }
+  
 
   async updateUser(
     username: string,
