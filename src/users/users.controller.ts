@@ -27,6 +27,30 @@ export class UsersController {
     return this.usersService.findAllUsers(role);
   }
 
+
+  @UseGuards(AuthGuard)
+  @Patch('changePassword')
+  @ApiOperation({
+    summary: 'تغییر رمز کاربر',
+  })
+  async changePassword(
+    @Request() req,
+    @Body() passwordData: { oldPassword: string, newPassword: string }
+  ): Promise<ArangoNewOldResult<UserEntity>> {
+    const currentUser = await this.usersService.findOneUserByEmail(req.user.email);
+
+    if (currentUser.password !== passwordData.oldPassword) {
+      throw new ForbiddenException('You entered your old password incorrectly!');
+    }
+
+    if (passwordData.newPassword === passwordData.oldPassword) {
+      throw new ForbiddenException('This is your current password.');
+    }
+
+    return this.usersService.updateUser(currentUser.username, { "password": passwordData.newPassword });
+  }
+
+
   @UseGuards(AuthGuard)
   @Patch('increaseRole/:username')
   @ApiOperation({
