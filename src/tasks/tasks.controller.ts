@@ -18,20 +18,31 @@ export class TasksController {
     @Request() req, 
     @Body() taskData: { task: TaskEntity, username: string }
   ): Promise<TaskEntity> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    const wantedUser = this.usersService.findOneUserByUsername(taskData.username)
-    if (await wantedUser == undefined) {
+    const currentUser = await this.usersService.findOneUserByEmail(req.user.email)
+    console.log(currentUser);
+    const wantedUser = await this.usersService.findOneUserByUsername(taskData.username)
+    console.log(wantedUser);
+    if (wantedUser == undefined) {
       throw new NotFoundException('this username not exists')
     }
 
+    if ((wantedUser.username === currentUser.username) && wantedUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can define task for him/herself')
+    }
 
-    if ((await currentUser).role !== 'ADMIN') {
-      if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {
+    if (currentUser.role !== 'ADMIN') {
+      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
         throw new ForbiddenException('you are not allowed to define task for this user')
       }
     }
     
-    return await this.tasksService.defineTask(taskData.task, (await wantedUser).userTaskIds);
+    console.log(wantedUser.userTaskIds.toString())
+    const definedTask = await this.tasksService.defineTask(taskData.task, wantedUser._id);
+    wantedUser.userTaskIds.push(definedTask._id)
+    console.log(wantedUser.userTaskIds.toString())
+    await this.usersService.updateUser(wantedUser.username, wantedUser); 
+
+    return definedTask
   }
 
   @Get('admin')

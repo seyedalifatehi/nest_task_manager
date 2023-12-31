@@ -31,6 +31,7 @@ export class UsersService {
     
     user.role = 'USER'
     user.userTaskIds = []
+    // user.userTaskIds.pop()
     return await this.userRepository.save(user);
   }
 

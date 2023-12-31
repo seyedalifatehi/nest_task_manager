@@ -16,7 +16,7 @@ export class TaskEntity extends ArangoDocument {
 
     @IsString()
     @ApiProperty({ description: 'description', example: 'description' })
-    description?: string;
+    description: string;
 
     @IsBoolean()
     @ApiProperty({ description: 'isCompleted', example: 'true' })
