@@ -46,21 +46,38 @@ export class TasksController {
   }
 
   @Get('subAdmins')
-  async showTasksOfSubAdmins(@Request() req): Promise<ResultList<TaskEntity>> {
+  async showTasksOfSubAdmins(@Request() req): Promise<any> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can see the tasks of sub admins')
     }
-    return await this.tasksService.showTasksOfSubAdmins();
+
+    const subAdmins = await this.usersService.findAllUsers('SUB_ADMIN')
+    const tasks = []
+
+    for (let i = 0; i < subAdmins.totalCount; i++) {      
+      for (let j = 0; j < subAdmins.results[i].userTaskIds.length; j++) {
+        tasks.push(this.tasksService.findOneTaskById(subAdmins.results[i].userTaskIds[j]))
+      }
+    }
+    return tasks;
   }
 
   @Get('users')
-  async showTasksOfUsers(@Request() req): Promise<ResultList<TaskEntity>> {
+  async showTasksOfUsers(@Request() req): Promise<any> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     if ((await currentUser).role === 'USER') {
       throw new ForbiddenException('only admin and sub admins can see the tasks of users')
     }
-    return await this.tasksService.showTasksOfUsers();
+    const users = await this.usersService.findAllUsers('USER')
+    const tasks = []
+
+    for (let i = 0; i < users.totalCount; i++) {      
+      for (let j = 0; j < users.results[i].userTaskIds.length; j++) {
+        tasks.push(await this.tasksService.findOneTaskById(users.results[i].userTaskIds[j]))
+      }
+    }
+    return tasks;
   }
 
   @Patch(':taskId')
@@ -71,8 +88,8 @@ export class TasksController {
   @Delete(':taskId')
   async removeTask(@Request() req, @Param('taskId') taskId: string): Promise<void> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    const wantedTask = this.tasksService.findOneTaskById(taskId)
-    const userId = (await wantedTask).userId
+    const wantedTask = await this.tasksService.findOneTaskById(taskId)
+    const userId = wantedTask.userId
     const wantedUser = this.usersService.findOneUserById(userId)
 
     if ((await currentUser).role !== 'ADMIN') {

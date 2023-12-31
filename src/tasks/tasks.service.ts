@@ -17,16 +17,12 @@ export class TasksService {
     return definedTask
   }
 
-  async showTasksOfSubAdmins(): Promise<ResultList<TaskEntity>> {
-    return await this.taskRepository.findManyBy({ role: 'SUB_ADMIN' })
-  }
-
-  async showTasksOfUsers(): Promise<ResultList<TaskEntity>> {
-    return await this.taskRepository.findManyBy({ role: 'USER' })
-  }
-
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
     return await this.taskRepository.findOneBy({ _id })
+  }
+
+  async findAllTasks(): Promise<ResultList<TaskEntity>> {
+    return await this.taskRepository.findAll()
   }
 
   async updateTask(_id: string, updatedTask: Partial<TaskEntity>): Promise<ArangoNewOldResult<TaskEntity>> {
