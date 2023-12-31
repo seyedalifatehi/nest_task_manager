@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards, NotFoundException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
@@ -14,9 +14,15 @@ export class TasksController {
   ) {}
 
   @Post()
-  async defineTask(@Request() req, @Body() task: TaskEntity, username: string): Promise<TaskEntity> {
+  async defineTask(
+    @Request() req, 
+    @Body() taskData: { task: TaskEntity, username: string }
+  ): Promise<TaskEntity> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    const wantedUser = this.usersService.findOneUserByUsername(username)
+    const wantedUser = this.usersService.findOneUserByUsername(taskData.username)
+    if (wantedUser === null) {
+      throw new NotFoundException('this username not exists')
+    }
 
     if ((await currentUser).role !== 'ADMIN') {
       if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {
@@ -24,7 +30,7 @@ export class TasksController {
       }
     }
     
-    return this.tasksService.defineTask(task, (await wantedUser)._id);
+    return this.tasksService.defineTask(taskData.task, (await wantedUser)._id);
   }
 
   @Get('admin')

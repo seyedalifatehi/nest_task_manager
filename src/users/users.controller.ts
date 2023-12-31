@@ -33,7 +33,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'تغییر رمز کاربر',
   })
-  async changePassword(
+  async changePassword (
     @Request() req,
     @Body() passwordData: { oldPassword: string, newPassword: string }
   ): Promise<ArangoNewOldResult<UserEntity>> {
