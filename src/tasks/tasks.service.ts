@@ -17,10 +17,6 @@ export class TasksService {
     return definedTask
   }
 
-  async showTasksOfAdmin(): Promise<ResultList<TaskEntity>> {
-    return await this.taskRepository.findManyBy({ role: 'ADMIN' })
-  }
-
   async showTasksOfSubAdmins(): Promise<ResultList<TaskEntity>> {
     return await this.taskRepository.findManyBy({ role: 'SUB_ADMIN' })
   }
