@@ -20,9 +20,10 @@ export class TasksController {
   ): Promise<TaskEntity> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     const wantedUser = this.usersService.findOneUserByUsername(taskData.username)
-    if (wantedUser === null) {
+    if (await wantedUser == undefined) {
       throw new NotFoundException('this username not exists')
     }
+
 
     if ((await currentUser).role !== 'ADMIN') {
       if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {
@@ -30,7 +31,7 @@ export class TasksController {
       }
     }
     
-    return this.tasksService.defineTask(taskData.task, (await wantedUser)._id);
+    return await this.tasksService.defineTask(taskData.task, (await wantedUser).userTaskIds);
   }
 
   @Get('admin')

@@ -1,22 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ArangoNewOldResult, ArangoRepository, InjectRepository, ResultList } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(TaskEntity)
     private readonly taskRepository: ArangoRepository<TaskEntity>,
-    private readonly usersService: UsersService,
   ) {}  
 
-  async defineTask(task: TaskEntity, userId: string): Promise<TaskEntity> {
+  async defineTask(task: TaskEntity, taskIdsArray: string[]): Promise<TaskEntity> {
     task.isCompleted = false
-    task.userId = userId
     const definedTask = await this.taskRepository.save(task) 
-    const user = await this.usersService.findOneUserById(userId)
-    user.userTaskIds.push(definedTask._id)
+    taskIdsArray.push(task._id)
 
     return definedTask
   }
