@@ -37,7 +37,7 @@ export class TasksController {
     }
     
     console.log(wantedUser.userTaskIds.toString())
-    const definedTask = await this.tasksService.defineTask(taskData.task, wantedUser._id);
+    const definedTask = await this.tasksService.defineTask(taskData.task, wantedUser.username);
     wantedUser.userTaskIds.push(definedTask._id)
     console.log(wantedUser.userTaskIds.toString())
     await this.usersService.updateUser(wantedUser.username, wantedUser); 
@@ -89,8 +89,8 @@ export class TasksController {
   async removeTask(@Request() req, @Param('taskId') taskId: string): Promise<void> {
     const currentUser = this.usersService.findOneUserByEmail(req.user.email)
     const wantedTask = await this.tasksService.findOneTaskById(taskId)
-    const userId = wantedTask.userId
-    const wantedUser = this.usersService.findOneUserById(userId)
+    const username = wantedTask.username
+    const wantedUser = this.usersService.findOneUserByUsername(username)
 
     if ((await currentUser).role !== 'ADMIN') {
       if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {

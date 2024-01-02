@@ -9,9 +9,9 @@ export class TasksService {
     private readonly taskRepository: ArangoRepository<TaskEntity>,
   ) {}  
 
-  async defineTask(task: TaskEntity, userId: string): Promise<TaskEntity> {
+  async defineTask(task: TaskEntity, username: string): Promise<TaskEntity> {
     task.isCompleted = false
-    task.userId = userId
+    task.username = username
     const definedTask = await this.taskRepository.save(task) 
 
     return definedTask

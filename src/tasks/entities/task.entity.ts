@@ -7,7 +7,7 @@ import { IsNotEmpty, IsString, IsBoolean } from "class-validator";
 export class TaskEntity extends ArangoDocument {
     @IsString()
     @ApiProperty({ description: 'userId', example: 'user/1111' })
-    userId: string;
+    username: string;
 
     @IsNotEmpty()
     @IsString()
