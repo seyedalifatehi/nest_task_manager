@@ -43,7 +43,7 @@ export class TasksController {
     // await this.usersService.updateUser(wantedUser.username, wantedUser); 
 
     // return definedTask
-    return this.tasksService.defineTask(taskData.task, )
+    return this.tasksService.defineTask(taskData.task, req.user.email)
   }
 
   @Get('subAdmins')

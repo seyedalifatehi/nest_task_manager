@@ -6,8 +6,8 @@ import { UsersService } from 'src/users/users.service';
 
 const db = new Database({
   url: "http://localhost:8529",
-  databaseName: "_system",
-  auth: { username: "root", password: "azim1383" },
+  databaseName: process.env.DB_NAME,
+  auth: { username: process.env.DB_USERNAME, password: process.env.DB_PASSWORD },
 });
 
 @Injectable()
@@ -15,7 +15,7 @@ export class TasksService {
   constructor(
     @InjectRepository(TaskEntity)
     private readonly taskRepository: ArangoRepository<TaskEntity>,
-    
+
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
   ) {}  

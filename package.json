@@ -28,6 +28,7 @@
     "@nestjs/swagger": "^7.1.17",
     "arangojs": "^8.6.0",
     "class-validator": "^0.14.0",
+    "dotenv": "^16.3.1",
     "nanoid": "^5.0.4",
     "nest-arango": "^0.2.0",
     "reflect-metadata": "^0.1.13",
