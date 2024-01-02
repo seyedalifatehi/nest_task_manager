@@ -14,15 +14,18 @@ import {
 } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
+import { aql } from 'arangojs';
 
 const db = new Database({
   url: 'http://localhost:8529',
-  databaseName: process.env.DB_NAME,
+  databaseName: '_system',
   auth: {
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
+    username: 'root',
+    password: 'azim1383',
   },
 });
+
+const tasks = db.collection('Tasks');
 
 @Injectable()
 export class TasksService {
@@ -37,14 +40,15 @@ export class TasksService {
 
   async defineTask(
     task: TaskEntity,
-    wantedUsername: string,
-    email: string,
+    wantedUserUsername: string,
+    currentUserEmail: string,
   ): Promise<TaskEntity> {
-    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const currentUser =
+      await this.usersService.findOneUserByEmail(currentUserEmail);
     console.log(currentUser);
 
     const wantedUser =
-      await this.usersService.findOneUserByUsername(wantedUsername);
+      await this.usersService.findOneUserByUsername(wantedUserUsername);
     console.log(wantedUser);
 
     if (wantedUser === undefined) {
@@ -69,13 +73,59 @@ export class TasksService {
     }
 
     task.isCompleted = false;
-    task.username = wantedUsername;
+    task.username = wantedUserUsername;
     const definedTask = await this.taskRepository.save(task);
 
     wantedUser.userTaskIds.push(definedTask._id);
     await this.usersService.updateUser(wantedUser.username, wantedUser);
 
     return definedTask;
+  }
+
+  async showTasksOfSubAdmins(currentUserEmail: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+    if ((await currentUser).role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'only admin can see the tasks of sub admins',
+      );
+    }
+
+    const cursor = await db.query(aql`
+      LET subAdmins = (
+        FOR user IN Users
+          FILTER user.role == 'SUB_ADMIN'
+          RETURN user
+      )
+      FOR subAdmin IN subAdmins
+        FOR taskId IN subAdmin.userTaskIds
+          LET task = DOCUMENT(Tasks, taskId)
+          RETURN task
+    `);
+
+    return await cursor.all();
+  }
+
+  async showTasksOfUsers(currentUserEmail: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+    if ((await currentUser).role == 'USER') {
+      throw new ForbiddenException(
+        'only admin and sub admins can see the tasks of users',
+      );
+    }
+
+    const cursor = await db.query(aql`
+      LET subAdmins = (
+        FOR user IN Users
+          FILTER user.role == 'USER'
+          RETURN user
+      )
+      FOR subAdmin IN subAdmins
+        FOR taskId IN subAdmin.userTaskIds
+          LET task = DOCUMENT(Tasks, taskId)
+          RETURN task
+    `);
+
+    return await cursor.all();
   }
 
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {

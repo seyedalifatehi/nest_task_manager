@@ -16,10 +16,10 @@ import { TasksModule } from './tasks/tasks.module';
     ArangoModule.forRoot({
       config: {
         url: 'http://localhost:8529',
-        databaseName: process.env.DB_NAME,
+        databaseName: '_system',
         auth: {
-          username: process.env.DB_USERNAME,
-          password: process.env.DB_PASSWORD
+          username: 'root',
+          password: 'azim1383'
         },
       },
     }),

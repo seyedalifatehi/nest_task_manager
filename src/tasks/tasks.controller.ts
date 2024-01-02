@@ -23,37 +23,12 @@ export class TasksController {
 
   @Get('subAdmins')
   async showTasksOfSubAdmins(@Request() req): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    if ((await currentUser).role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can see the tasks of sub admins')
-    }
-
-    const subAdmins = await this.usersService.findAllUsers('SUB_ADMIN')
-    const tasks = []
-
-    for (let i = 0; i < subAdmins.totalCount; i++) {      
-      for (let j = 0; j < subAdmins.results[i].userTaskIds.length; j++) {
-        tasks.push(this.tasksService.findOneTaskById(subAdmins.results[i].userTaskIds[j]))
-      }
-    }
-    return tasks;
+    return this.tasksService.showTasksOfSubAdmins(req.user.email);
   }
 
   @Get('users')
   async showTasksOfUsers(@Request() req): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    if ((await currentUser).role === 'USER') {
-      throw new ForbiddenException('only admin and sub admins can see the tasks of users')
-    }
-    const users = await this.usersService.findAllUsers('USER')
-    const tasks = []
-
-    for (let i = 0; i < users.totalCount; i++) {      
-      for (let j = 0; j < users.results[i].userTaskIds.length; j++) {
-        tasks.push(await this.tasksService.findOneTaskById(users.results[i].userTaskIds[j]))
-      }
-    }
-    return tasks;
+    return this.tasksService.showTasksOfUsers(req.user.email);
   }
 
   @Patch(':taskId')
