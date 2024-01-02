@@ -1,12 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ArangoNewOldResult, ArangoRepository, InjectRepository, ResultList } from 'nest-arango';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
+import { ArangoNewOldResult, ArangoRepository, Database, InjectRepository, ResultList } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
+import { UsersService } from 'src/users/users.service';
+
+
+const db = new Database({
+  url: "http://localhost:8529",
+  databaseName: "_system",
+  auth: { username: "root", password: "azim1383" },
+});
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(TaskEntity)
     private readonly taskRepository: ArangoRepository<TaskEntity>,
+    
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) {}  
 
   async defineTask(task: TaskEntity, username: string): Promise<TaskEntity> {

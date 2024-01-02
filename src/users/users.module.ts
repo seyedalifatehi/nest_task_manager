@@ -8,8 +8,8 @@ import { TasksService } from 'src/tasks/tasks.service';
 
 @Module({
   imports: [
-    ArangoModule.forFeature([UserEntity]),
-    ArangoModule.forFeature([TaskEntity]),
+    ArangoModule.forFeature([UserEntity, TaskEntity]),
+    // ArangoModule.forFeature([TaskEntity]),
   ],
   controllers: [UsersController],
   providers: [UsersService, TasksService],

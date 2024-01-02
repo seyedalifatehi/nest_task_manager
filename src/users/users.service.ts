@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import {
   InjectRepository,
   ArangoRepository,
@@ -14,6 +14,8 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
+    
+    @Inject(forwardRef(() => TasksService))
     private readonly taskService: TasksService,
     ) {}  
 
