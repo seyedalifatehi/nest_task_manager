@@ -187,6 +187,7 @@ export class UsersService {
     return foundUser;
   }
 
+  // this mehod is used for edit a user account
   async updateUser(
     username: string,
     updatedUser: Partial<UserEntity>,
@@ -206,15 +207,21 @@ export class UsersService {
     return updatedDocument ? updatedDocument : null;
   }
 
-  async removeUser(username: string, currentUserEmail: string): Promise<void> {
+  // admin can remove a user with this method
+  async removeUser(username: string, currentUserEmail: string): Promise<Object> {
     const currentUser = this.findOneUserByEmail(currentUserEmail);
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
     }
 
     await this.userRepository.removeBy({ username });
+    return {
+      message: 
+    }
   }
 
+  // this method is for handling errors represent that admin have access 
+  //  to all the features of 
   async userAccessHandleError(
     message: string,
     currentUser: UserEntity,

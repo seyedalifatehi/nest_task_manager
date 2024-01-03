@@ -76,7 +76,7 @@ export class UsersController {
   async decreaseRole(
     @Request() req,
     @Param('username') username: string,
-  ): Promise<ArangoNewOldResult<UserEntity>> {
+  ): Promise<Object> {
     return this.usersService.decreaseRole(req.user.email, username);
   }
 
@@ -101,7 +101,7 @@ export class UsersController {
   async remove(
     @Request() req,
     @Param('username') username: string,
-  ): Promise<void> {
+  ): Promise<Object> {
     return await this.usersService.removeUser(username, req.user.email);
   }
 }
