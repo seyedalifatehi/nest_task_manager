@@ -139,6 +139,7 @@ export class TasksService {
     return await this.taskRepository.findAll();
   }
 
+  // this method is used for editing tasks
   async updateTask(
     _id: string,
     updatedTask: Partial<TaskEntity>,
