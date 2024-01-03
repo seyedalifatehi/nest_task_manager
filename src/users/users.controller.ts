@@ -85,14 +85,13 @@ export class UsersController {
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
   })
   async findOneUser(
-    @Request() req,
     @Param('username') username: string,
-  ): Promise<UserEntity> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email);
-    if ((await currentUser).role === 'USER') {
-      throw new ForbiddenException('only admin and sub admins can see users');
+  ): Promise<Object> {
+    const selectedUser = await this.usersService.findOneUserByUsername(username);
+    return {
+      username: selectedUser.username,
+      role: selectedUser.role
     }
-    return this.usersService.findOneUserByUsername(username);
   }
 
   @Delete(':username')

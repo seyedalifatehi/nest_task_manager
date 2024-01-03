@@ -71,18 +71,24 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
-  async changePassword(currentUserEmail: string, oldPassword: string, newPassword: string) {
+  async changePassword(
+    currentUserEmail: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
 
     if (currentUser.password !== oldPassword) {
-      throw new ForbiddenException('You entered your old password incorrectly!');
+      throw new ForbiddenException(
+        'You entered your old password incorrectly!',
+      );
     }
 
     if (newPassword === oldPassword) {
       throw new ForbiddenException('This is your current password.');
     }
 
-    return this.updateUser(currentUser.username, { "password": newPassword });
+    return this.updateUser(currentUser.username, { password: newPassword });
   }
 
   async increaseRole(currentUserEmail: string, selectedUserUsername: string) {
@@ -93,13 +99,13 @@ export class UsersService {
 
     const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
     if (!wantedUser) {
-      throw new NotFoundException("User Not Found");
+      throw new NotFoundException('User Not Found');
     }
 
     if (wantedUser.role !== 'USER') {
       throw new ForbiddenException("this user's role is already SUB ADMIN");
     }
-    
+
     return this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
   }
 
@@ -111,26 +117,44 @@ export class UsersService {
 
     const wantedUser = this.findOneUserByUsername(selectedUserUsername);
     if (!wantedUser) {
-      throw new NotFoundException("User Not Found");
+      throw new NotFoundException('User Not Found');
     }
 
     if ((await wantedUser).role !== 'SUB_ADMIN') {
       throw new ForbiddenException("this user's role is already USER");
     }
-    
+
     return this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
   }
 
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ email });
+    const foundUser = await this.userRepository.findOneBy({ email });
+
+    if (!foundUser) {
+      throw new NotFoundException('Email Not Found');
+    }
+
+    return foundUser;
   }
 
   async findOneUserByUsername(username: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ username });
+    const foundUser = await this.userRepository.findOneBy({ username });
+
+    if (!foundUser) {
+      throw new NotFoundException('Username Not Found');
+    }
+
+    return foundUser;
   }
 
   async findOneUserById(_id: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ _id });
+    const foundUser = await this.userRepository.findOneBy({ _id });
+
+    if (!foundUser) {
+      throw new NotFoundException('Id Not Found')
+    }
+
+    return foundUser;
   }
 
   async updateUser(
