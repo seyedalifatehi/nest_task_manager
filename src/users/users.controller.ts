@@ -103,10 +103,6 @@ export class UsersController {
     @Request() req,
     @Param('username') username: string,
   ): Promise<void> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email);
-    if ((await currentUser).role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can delete users');
-    }
-    return await this.usersService.removeUser(username);
+    return await this.usersService.removeUser(username, req.user.email);
   }
 }

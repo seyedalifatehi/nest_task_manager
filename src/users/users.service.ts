@@ -152,7 +152,12 @@ export class UsersService {
     return updatedDocument ? updatedDocument : null;
   }
 
-  async removeUser(username: string): Promise<void> {
+  async removeUser(username: string, currentUserEmail: string): Promise<void> {
+    const currentUser = this.findOneUserByEmail(currentUserEmail);
+    if ((await currentUser).role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can delete users');
+    }
+
     await this.userRepository.removeBy({ username });
   }
 
