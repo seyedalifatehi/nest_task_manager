@@ -159,7 +159,7 @@ export class TasksService {
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
-    
+
     const wantedTask = await this.findOneTaskById(taskId);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
@@ -184,7 +184,7 @@ export class TasksService {
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
-    
+
     const wantedTask = await this.findOneTaskById(taskId);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
@@ -202,7 +202,7 @@ export class TasksService {
     return this.updateTask(taskId, { description: newDescription });
   }
 
-  // 
+  // this method shows the tasks of the logged in user
   async showEnteredUserTasks(email: string): Promise<Array<any>> {
     const userTasks = await db.query(aql`
       LET user = (
@@ -222,6 +222,7 @@ export class TasksService {
     return userTasks.all();
   }
 
+  // this method shows the tasks of the desired in user
   async showDesiredUserTasks(
     currentUserEmail: string,
     desiredUserUsername: string,
