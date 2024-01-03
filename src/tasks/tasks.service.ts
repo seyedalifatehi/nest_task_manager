@@ -96,6 +96,7 @@ export class TasksService {
           FILTER user.role == 'SUB_ADMIN'
           RETURN user
       )
+
       FOR subAdmin IN subAdmins
         FOR taskId IN subAdmin.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
@@ -151,7 +152,25 @@ export class TasksService {
     return updatedDocument ? updatedDocument : null;
   }
 
-  async removeTask(_id: string): Promise<void> {
-    await this.taskRepository.removeBy({ _id });
+  async removeTask(_id: string, email: string): Promise<void> {
+    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const wantedTask = await this.tasksService.findOneTaskById(_id);
+    const username = wantedTask.username;
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
+
+    if (currentUser.role !== 'ADMIN') {
+      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
+        throw new ForbiddenException(
+          'you are not allowed to remove the task of this user',
+        );
+      }
+    }
+
+    const removedTask = await this.taskRepository.removeBy({ _id });
+    await db.query(aql`
+      FOR taskId IN ${wantedUser.userTaskIds}
+        FILTER taskId == ${_id}
+        REMOVE taskId IN ${wantedUser.userTaskIds}
+    `);
   }
 }

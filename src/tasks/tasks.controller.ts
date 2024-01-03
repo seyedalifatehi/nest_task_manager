@@ -38,17 +38,6 @@ export class TasksController {
 
   @Delete(':taskId')
   async removeTask(@Request() req, @Param('taskId') taskId: string): Promise<void> {
-    const currentUser = this.usersService.findOneUserByEmail(req.user.email)
-    const wantedTask = await this.tasksService.findOneTaskById(taskId)
-    const username = wantedTask.username
-    const wantedUser = this.usersService.findOneUserByUsername(username)
-
-    if ((await currentUser).role !== 'ADMIN') {
-      if ((await currentUser).role !== 'SUB_ADMIN' || (await wantedUser).role !== 'USER') {
-        throw new ForbiddenException('you are not allowed to remove the task of this user')
-      }
-    }
-
-    return await this.tasksService.removeTask(taskId);
+    return await this.tasksService.removeTask(taskId, req.user.email);
   }
 }
