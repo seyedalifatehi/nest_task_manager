@@ -25,8 +25,6 @@ const db = new Database({
   },
 });
 
-const tasks = db.collection('Tasks');
-
 @Injectable()
 export class TasksService {
   tasksService: any;
@@ -140,7 +138,7 @@ export class TasksService {
     updatedTask: Partial<TaskEntity>,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const wantedTask = await this.taskRepository.findOneBy({ _id });
-    
+
     Object.assign(wantedTask, updatedTask);
     const updatedDocument = await this.taskRepository.update(wantedTask);
 
@@ -193,7 +191,6 @@ export class TasksService {
     return this.updateTask(taskId, { description: newDescription });
   }
 
-  
   async showEnteredUserTasks(email: string): Promise<Array<any>> {
     const userTasks = await db.query(aql`
       LET user = (
@@ -208,9 +205,37 @@ export class TasksService {
       FOR taskId IN user.userTaskIds
         LET task = DOCUMENT(Tasks, taskId)
         RETURN task
-    `)
+    `);
 
-    return userTasks.all()
+    return userTasks.all();
+  }
+
+  async showDesiredUserTasks(currentUserEmail: string, desiredUserUsername: string): Promise<Array<any>> {
+    const currentUser = await this.usersService.findOneUserByEmail(currentUserEmail);
+    const wantedUser = await this.usersService.findOneUserByUsername(desiredUserUsername);
+
+    this.usersService.userAccessHandleError(
+      'you are not allowed to see the tasks of this user',
+      currentUser,
+      wantedUser,
+    );
+
+    const userTasks = await db.query(aql`
+      LET user = (
+        FOR u IN Users
+          FILTER u.email == ${desiredUserUsername}
+          RETURN u
+      )[0]
+      
+      IF !user || !user.userTaskIds
+        THROW { "errorCode": 403, "errorMessage": "Invalid user or userTaskIds" }
+      
+      FOR taskId IN user.userTaskIds
+        LET task = DOCUMENT(Tasks, taskId)
+        RETURN task
+    `);
+
+    return userTasks.all();
   }
 
   async removeTask(_id: string, email: string): Promise<void> {

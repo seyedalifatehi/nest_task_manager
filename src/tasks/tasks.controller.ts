@@ -63,6 +63,14 @@ export class TasksController {
     return await this.tasksService.showEnteredUserTasks(req.user.email);
   }
 
+  @Get('showDesiredUserTasks/:username')
+  @ApiOperation({
+    summary: 'نشان دادن تسک های کاربر دلخواه',
+  })
+  async showDesiredUserTasks(@Request() req, @Param('username') desiredUserUsername: string) {
+    return await this.tasksService.showDesiredUserTasks(req.user.email, desiredUserUsername);
+  }
+
   @Delete(':taskId')
   @ApiOperation({
     summary: 'حذف کردن تسک',

@@ -5,7 +5,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ApiOperation } from '@nestjs/swagger';
 import { ArangoNewOldResult, ResultList } from 'nest-arango';
 
-
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -18,7 +18,6 @@ export class UsersController {
     return this.usersService.createUser(user);
   }
 
-  @UseGuards(AuthGuard)
   @Get()
   @ApiOperation({
     summary: 'گرفتن تمامی کاربران',
@@ -27,8 +26,6 @@ export class UsersController {
     return this.usersService.findAllUsers(role);
   }
 
-
-  @UseGuards(AuthGuard)
   @Patch('changePassword')
   @ApiOperation({
     summary: 'تغییر رمز کاربر',
@@ -50,8 +47,6 @@ export class UsersController {
     return this.usersService.updateUser(currentUser.username, { "password": passwordData.newPassword });
   }
 
-
-  @UseGuards(AuthGuard)
   @Patch('increaseRole/:username')
   @ApiOperation({
     summary: 'افزایش سمت یک کاربر',
@@ -69,7 +64,6 @@ export class UsersController {
     return this.usersService.updateUser(username, {"role": "SUB_ADMIN"});
   }
 
-  @UseGuards(AuthGuard)
   @Patch('decreaseRole/:username')
   @ApiOperation({
     summary: 'کاهش سمت یک کاربر',
@@ -87,7 +81,6 @@ export class UsersController {
     return this.usersService.updateUser(username, {"role": "USER"});
   }
 
-  @UseGuards(AuthGuard)
   @Get(':username')
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
@@ -100,7 +93,6 @@ export class UsersController {
     return this.usersService.findOneUserByUsername(username);
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':username')
   @ApiOperation({
     summary: 'حذف کاربر',
