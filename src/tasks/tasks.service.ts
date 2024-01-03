@@ -80,6 +80,7 @@ export class TasksService {
     return definedTask;
   }
 
+  // this method returns all tasks of sub admins
   async showTasksOfSubAdmins(currentUserEmail: string): Promise<any> {
     const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
     if ((await currentUser).role !== 'ADMIN') {
@@ -104,6 +105,7 @@ export class TasksService {
     return await cursor.all();
   }
 
+  // this method returns all tasks of users
   async showTasksOfUsers(currentUserEmail: string): Promise<any> {
     const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
     if ((await currentUser).role == 'USER') {
