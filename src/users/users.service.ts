@@ -223,8 +223,8 @@ export class UsersService {
     };
   }
 
-  // this method is for handling errors represent that admin have access
-  //  to all the features of
+  // this method is for handling errors represent that admin have access to all the features of
+  // sub admins and user and sub admin have access to all the features of users
   async userAccessHandleError(
     message: string,
     currentUser: UserEntity,
