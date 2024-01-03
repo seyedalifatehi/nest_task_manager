@@ -11,35 +11,49 @@ import {
   ResultList,
   ArangoNewOldResult,
 } from 'nest-arango';
+import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
-import { TaskEntity } from 'src/tasks/entities/task.entity';
-import { TasksService } from 'src/tasks/tasks.service';
+
+const db = new Database({
+  url: 'http://localhost:8529',
+  databaseName: '_system',
+  auth: {
+    username: 'root',
+    password: 'azim1383',
+  },
+});
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
-
-    @Inject(forwardRef(() => TasksService))
-    private readonly taskService: TasksService,
   ) {}
 
-  async createUser(user: UserEntity): Promise<UserEntity> {
-    const users = this.userRepository.findAll();
-    for (let i = 0; i < (await users).totalCount; i++) {
-      if ((await users).results[i].email === user.email) {
-        throw new ForbiddenException('this email already exists');
-      }
+  async createUser(
+    user: UserEntity,
+    currentUserEmail: string,
+  ): Promise<UserEntity> {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
 
-      if ((await users).results[i].username === user.username) {
-        throw new ForbiddenException('this username already exists');
-      }
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can add new user!');
     }
+
+    await db.query(aql`
+    FOR u IN users
+      FILTER u.email == ${user.email}
+      LIMIT 1
+      THROW { "errorCode": 403, "errorMessage": "This email already exists" }
+  
+    FOR u IN users
+      FILTER u.username == ${user.username}
+      LIMIT 1
+      THROW { "errorCode": 403, "errorMessage": "This username already exists" }
+    `);
 
     user.role = 'USER';
     user.userTaskIds = [];
-    // user.userTaskIds.pop()
     return await this.userRepository.save(user);
   }
 

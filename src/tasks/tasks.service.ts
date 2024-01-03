@@ -8,13 +8,12 @@ import {
 import {
   ArangoNewOldResult,
   ArangoRepository,
-  Database,
   InjectRepository,
   ResultList,
 } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
-import { aql } from 'arangojs';
+import { aql, Database } from 'arangojs';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -156,7 +155,7 @@ export class TasksService {
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
     this.usersService.userAccessHandleError(
-      'you are not allowed to change the properties of this task',
+      'you are not allowed to edit this task',
       currentUser,
       wantedUser,
     );

@@ -14,8 +14,8 @@ export class UsersController {
   @ApiOperation({
     summary: 'ثبتنام کاربر',
   })
-  async createUser(@Body() user: UserEntity): Promise<UserEntity> {
-    return this.usersService.createUser(user);
+  async createUser(@Body() user: UserEntity, @Request() req): Promise<UserEntity> {
+    return this.usersService.createUser(user, req.user.email);
   }
 
   @Get()

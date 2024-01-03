@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  ForbiddenException,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -7,20 +19,21 @@ import { ApiOperation } from '@nestjs/swagger';
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
-  
-  constructor(
-    private readonly tasksService: TasksService,
-  ) {}
+  constructor(private readonly tasksService: TasksService) {}
 
   @Post()
   @ApiOperation({
     summary: 'تعریف کردن تسک',
   })
   async defineTask(
-    @Request() req, 
-    @Body() taskData: { task: TaskEntity, username: string }
+    @Request() req,
+    @Body() taskData: { task: TaskEntity; username: string },
   ): Promise<TaskEntity> {
-    return await this.tasksService.defineTask(taskData.task, taskData.username, req.user.email)
+    return await this.tasksService.defineTask(
+      taskData.task,
+      taskData.username,
+      req.user.email,
+    );
   }
 
   @Get('subAdmins')
@@ -43,16 +56,32 @@ export class TasksController {
   @ApiOperation({
     summary: 'تغییر عنوان یک تسک',
   })
-  async changeTitle(@Param('taskId') taskId: string, @Body() newTitle: string, @Request() req) {
-    return await this.tasksService.changeTitle(taskId, newTitle, req.user.email);
+  async changeTitle(
+    @Param('taskId') taskId: string,
+    @Body() newTitle: string,
+    @Request() req,
+  ) {
+    return await this.tasksService.changeTitle(
+      taskId,
+      newTitle,
+      req.user.email,
+    );
   }
 
   @Patch('changeDescription/:taskId')
   @ApiOperation({
     summary: 'تغییر توضیحات یک تسک',
   })
-  async changeDescription(@Param('taskId') taskId: string, @Body() newDescription: string, @Request() req) {
-    return await this.tasksService.changeDescription(taskId, newDescription, req.user.email);
+  async changeDescription(
+    @Param('taskId') taskId: string,
+    @Body() newDescription: string,
+    @Request() req,
+  ) {
+    return await this.tasksService.changeDescription(
+      taskId,
+      newDescription,
+      req.user.email,
+    );
   }
 
   @Get('showEnteredUserTasks')
@@ -67,15 +96,24 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر دلخواه',
   })
-  async showDesiredUserTasks(@Request() req, @Param('username') desiredUserUsername: string) {
-    return await this.tasksService.showDesiredUserTasks(req.user.email, desiredUserUsername);
+  async showDesiredUserTasks(
+    @Request() req,
+    @Param('username') desiredUserUsername: string,
+  ) {
+    return await this.tasksService.showDesiredUserTasks(
+      req.user.email,
+      desiredUserUsername,
+    );
   }
 
   @Delete(':taskId')
   @ApiOperation({
     summary: 'حذف کردن تسک',
   })
-  async removeTask(@Request() req, @Param('taskId') taskId: string): Promise<void> {
+  async removeTask(
+    @Request() req,
+    @Param('taskId') taskId: string,
+  ): Promise<void> {
     return await this.tasksService.removeTask(taskId, req.user.email);
   }
 }
