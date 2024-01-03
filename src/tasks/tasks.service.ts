@@ -194,22 +194,23 @@ export class TasksService {
   }
 
   
-  async showUsersTasks(email: string): Promise<Array<TaskEntity>> {
-    const user = await this.usersService.findOneUserByEmail(email)
-    
-    if (!user || !user.userTaskIds) {
-      throw new ForbiddenException('Invalid user or userTaskIds');
-    }
+  async showEnteredUserTasks(email: string): Promise<Array<any>> {
+    const userTasks = await db.query(aql`
+      LET user = (
+        FOR u IN Users
+          FILTER u.email == ${email}
+          RETURN u
+      )[0]
+      
+      IF !user || !user.userTaskIds
+        THROW { "errorCode": 403, "errorMessage": "Invalid user or userTaskIds" }
+      
+      FOR taskId IN user.userTaskIds
+        LET task = DOCUMENT(Tasks, taskId)
+        RETURN task
+    `)
 
-    let tasks: TaskEntity[] = [];
-
-    for (let i = 0; i < user.userTaskIds.length; i++) {
-      // Ensure taskService and findOneTaskById are properly defined
-      const task = await this.tasksService.findOneTaskById(user.userTaskIds[i]);
-      tasks.push(task);
-    }
-
-    return tasks;
+    return userTasks.all()
   }
 
   async removeTask(_id: string, email: string): Promise<void> {

@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards, NotFoundException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
-import { UsersService } from 'src/users/users.service';
-import { ResultList } from 'nest-arango';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiOperation } from '@nestjs/swagger';
 
@@ -12,7 +10,6 @@ export class TasksController {
   
   constructor(
     private readonly tasksService: TasksService,
-    private usersService: UsersService,
   ) {}
 
   @Post()
@@ -62,8 +59,8 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر وارد شده',
   })
-  async showUsersTasks(@Request() req) {
-    return await this.tasksService.showUsersTasks(req.user.email);
+  async showEnteredUserTasks(@Request() req) {
+    return await this.tasksService.showEnteredUserTasks(req.user.email);
   }
 
   @Delete(':taskId')
