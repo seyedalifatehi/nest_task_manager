@@ -64,7 +64,7 @@ export class TasksService {
       );
     }
 
-    this.usersService.userAccessHandleError(
+    await this.usersService.userAccessHandleError(
       'you are not allowed to define task for this user',
       currentUser,
       wantedUser,
