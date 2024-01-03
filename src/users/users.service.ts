@@ -65,6 +65,8 @@ export class UsersService {
     }
   }
 
+  // this method shows all of the users
+  // you can filter users by their role
   async findAllUsers(
     role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
   ): Promise<ResultList<UserEntity>> {
