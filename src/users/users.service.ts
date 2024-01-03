@@ -154,6 +154,35 @@ export class UsersService {
     };
   }
 
+  // this method changes the username of current user account
+  async editUsername(
+    currentUserEmail: string,
+    newUsername: string,
+  ): Promise<Object> {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    if (newUsername === currentUser.username) {
+      throw new ForbiddenException('you cannot consider your current username as your new username');
+    }
+
+    this.updateUser(currentUser.username, { username: newUsername });
+    return {
+      message: 'Your username has changed successfully!',
+    };
+  }
+
+  // this method changes the email of current user account
+  async editEmail(currentUserEmail: string, newEmail: string): Promise<Object> {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    if (newEmail === currentUser.email) {
+      throw new ForbiddenException('you cannot consider your current email as your new email');
+    }
+
+    this.updateUser(currentUser.username, { email: newEmail });
+    return {
+      message: 'Your email has changed successfully!',
+    };
+  }
+
   // this method finds a user account based on its email
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
     const foundUser = await this.userRepository.findOneBy({ email });

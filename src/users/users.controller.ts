@@ -77,6 +77,25 @@ export class UsersController {
     return this.usersService.decreaseRole(req.user.email, username);
   }
 
+  @Patch('editUsername')
+  @ApiOperation({
+    summary: 'تغییر نام کاربری کاربر کنونی',
+  })
+  async editUsername(
+    @Request() req,
+    @Body() newUsername: string,
+  ): Promise<Object> {
+    return await this.usersService.editUsername(req.user.email, newUsername);
+  }
+
+  @Patch('editEmail')
+  @ApiOperation({
+    summary: 'تغییر ایمیل کاربر کنونی',
+  })
+  async editEmail(@Request() req, @Body() newEmail: string): Promise<Object> {
+    return await this.usersService.editEmail(req.user.email, newEmail);
+  }
+
   @Get(':username')
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
