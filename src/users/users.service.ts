@@ -63,12 +63,62 @@ export class UsersService {
     if (role) {
       const rolesArray = this.userRepository.findManyBy({ role });
       if ((await rolesArray).results.length === 0) {
-        throw new NotFoundException('User Role Not Found');
+        throw new NotFoundException('Role Not Found');
       }
       return rolesArray;
     }
 
     return await this.userRepository.findAll();
+  }
+
+  async changePassword(currentUserEmail: string, oldPassword: string, newPassword: string) {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+
+    if (currentUser.password !== oldPassword) {
+      throw new ForbiddenException('You entered your old password incorrectly!');
+    }
+
+    if (newPassword === oldPassword) {
+      throw new ForbiddenException('This is your current password.');
+    }
+
+    return this.updateUser(currentUser.username, { "password": newPassword });
+  }
+
+  async increaseRole(currentUserEmail: string, selectedUserUsername: string) {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can increase users roles');
+    }
+
+    const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
+    if (!wantedUser) {
+      throw new NotFoundException("User Not Found");
+    }
+
+    if (wantedUser.role !== 'USER') {
+      throw new ForbiddenException("this user's role is already SUB ADMIN");
+    }
+    
+    return this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
+  }
+
+  async decreaseRole(currentUserEmail: string, selectedUserUsername: string) {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can decrease sub admins roles');
+    }
+
+    const wantedUser = this.findOneUserByUsername(selectedUserUsername);
+    if (!wantedUser) {
+      throw new NotFoundException("User Not Found");
+    }
+
+    if ((await wantedUser).role !== 'SUB_ADMIN') {
+      throw new ForbiddenException("this user's role is already USER");
+    }
+    
+    return this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
   }
 
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
