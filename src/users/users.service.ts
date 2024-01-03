@@ -30,10 +30,12 @@ export class UsersService {
     private readonly userRepository: ArangoRepository<UserEntity>,
   ) {}
 
+  // this methos is for creating user accounts
+  // only admin can add users
   async createUser(
     user: UserEntity,
     currentUserEmail: string,
-  ): Promise<UserEntity> {
+  ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
 
     if (currentUser.role !== 'ADMIN') {
@@ -54,7 +56,13 @@ export class UsersService {
 
     user.role = 'USER';
     user.userTaskIds = [];
-    return await this.userRepository.save(user);
+    const createdUser = await this.userRepository.save(user);
+
+    return {
+      username: createdUser.username,
+      email: createdUser.email,
+      message: "user created successfully"
+    }
   }
 
   async findAllUsers(

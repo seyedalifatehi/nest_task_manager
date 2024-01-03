@@ -29,7 +29,7 @@ export class UsersController {
   async createUser(
     @Body() user: UserEntity,
     @Request() req,
-  ): Promise<UserEntity> {
+  ): Promise<Object> {
     return this.usersService.createUser(user, req.user.email);
   }
 
