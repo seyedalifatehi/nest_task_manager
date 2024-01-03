@@ -154,6 +154,7 @@ export class UsersService {
     };
   }
 
+  // this method finds a user account based on its email
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
     const foundUser = await this.userRepository.findOneBy({ email });
 
@@ -164,6 +165,7 @@ export class UsersService {
     return foundUser;
   }
 
+  // this method finds a user account based on its username
   async findOneUserByUsername(username: string): Promise<UserEntity | null> {
     const foundUser = await this.userRepository.findOneBy({ username });
 
@@ -174,6 +176,7 @@ export class UsersService {
     return foundUser;
   }
 
+  // this method finds a user account based on its id
   async findOneUserById(_id: string): Promise<UserEntity | null> {
     const foundUser = await this.userRepository.findOneBy({ _id });
 
