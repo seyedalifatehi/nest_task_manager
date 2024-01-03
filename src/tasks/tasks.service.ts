@@ -64,7 +64,7 @@ export class TasksService {
       );
     }
 
-    this.usersService.userHandleError(
+    this.usersService.userAccessHandleError(
       'you are not allowed to define task for this user',
       currentUser,
       wantedUser,
@@ -156,7 +156,7 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    this.usersService.userHandleError(
+    this.usersService.userAccessHandleError(
       'you are not allowed to remove the task of this user',
       currentUser,
       wantedTask,

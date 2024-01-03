@@ -113,7 +113,7 @@ export class UsersService {
     await this.userRepository.removeBy({ username });
   }
 
-  async userHandleError(
+  async userAccessHandleError(
     message: string,
     currentUser: UserEntity,
     wantedUser: UserEntity,
