@@ -152,13 +152,19 @@ export class TasksService {
     return updatedDocument ? updatedDocument : null;
   }
 
+  // this method is used for changing title of a task
   async changeTitle(
     taskId: string,
     newTitle: string,
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
+    
     const wantedTask = await this.findOneTaskById(taskId);
+    if (!wantedTask) {
+      throw new NotFoundException('task not found');
+    }
+
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
@@ -168,20 +174,22 @@ export class TasksService {
       wantedUser,
     );
 
-    if (!wantedTask) {
-      throw new NotFoundException('task not found');
-    }
-
     return this.updateTask(taskId, { title: newTitle });
   }
 
+  // this method is used for changing description of a task
   async changeDescription(
     taskId: string,
     newDescription: string,
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
+    
     const wantedTask = await this.findOneTaskById(taskId);
+    if (!wantedTask) {
+      throw new NotFoundException('task not found');
+    }
+
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
@@ -191,13 +199,10 @@ export class TasksService {
       wantedUser,
     );
 
-    if (!wantedTask) {
-      throw new NotFoundException('task not found');
-    }
-
     return this.updateTask(taskId, { description: newDescription });
   }
 
+  // 
   async showEnteredUserTasks(email: string): Promise<Array<any>> {
     const userTasks = await db.query(aql`
       LET user = (
