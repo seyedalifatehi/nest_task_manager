@@ -35,6 +35,9 @@ export class TasksService {
     private usersService: UsersService,
   ) {}
 
+  // this method is for defining task
+  // admin defines tasks for users and sub admins
+  // sub admin defines tasks for users
   async defineTask(
     task: TaskEntity,
     wantedUserUsername: string,
@@ -209,9 +212,14 @@ export class TasksService {
     return userTasks.all();
   }
 
-  async showDesiredUserTasks(currentUserEmail: string, desiredUserUsername: string): Promise<Array<any>> {
-    const currentUser = await this.usersService.findOneUserByEmail(currentUserEmail);
-    const wantedUser = await this.usersService.findOneUserByUsername(desiredUserUsername);
+  async showDesiredUserTasks(
+    currentUserEmail: string,
+    desiredUserUsername: string,
+  ): Promise<Array<any>> {
+    const currentUser =
+      await this.usersService.findOneUserByEmail(currentUserEmail);
+    const wantedUser =
+      await this.usersService.findOneUserByUsername(desiredUserUsername);
 
     this.usersService.userAccessHandleError(
       'you are not allowed to see the tasks of this user',
