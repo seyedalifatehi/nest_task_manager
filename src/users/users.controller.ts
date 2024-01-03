@@ -50,7 +50,7 @@ export class UsersController {
   async changePassword(
     @Request() req,
     @Body() passwordData: { oldPassword: string; newPassword: string },
-  ): Promise<ArangoNewOldResult<UserEntity>> {
+  ): Promise<Object> {
     return this.usersService.changePassword(
       req.user.email,
       passwordData.oldPassword,

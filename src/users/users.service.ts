@@ -61,8 +61,8 @@ export class UsersService {
     return {
       username: createdUser.username,
       email: createdUser.email,
-      message: "user created successfully"
-    }
+      message: 'user created successfully',
+    };
   }
 
   // this method shows all of the users
@@ -81,11 +81,12 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
+  //
   async changePassword(
     currentUserEmail: string,
     oldPassword: string,
     newPassword: string,
-  ) {
+  ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
 
     if (currentUser.password !== oldPassword) {
@@ -97,8 +98,11 @@ export class UsersService {
     if (newPassword === oldPassword) {
       throw new ForbiddenException('This is your current password.');
     }
+    this.updateUser(currentUser.username, { password: newPassword });
 
-    return this.updateUser(currentUser.username, { password: newPassword });
+    return {
+      message: 'password changed successfully',
+    };
   }
 
   async increaseRole(currentUserEmail: string, selectedUserUsername: string) {
@@ -161,7 +165,7 @@ export class UsersService {
     const foundUser = await this.userRepository.findOneBy({ _id });
 
     if (!foundUser) {
-      throw new NotFoundException('Id Not Found')
+      throw new NotFoundException('Id Not Found');
     }
 
     return foundUser;
