@@ -129,10 +129,12 @@ export class TasksService {
     return await cursor.all();
   }
 
+  // this method returns a task by an Id
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
     return await this.taskRepository.findOneBy({ _id });
   }
 
+  // this method returns all of the tasks
   async findAllTasks(): Promise<ResultList<TaskEntity>> {
     return await this.taskRepository.findAll();
   }
