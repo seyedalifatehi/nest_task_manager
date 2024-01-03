@@ -156,13 +156,11 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (currentUser.role !== 'ADMIN') {
-      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
-        throw new ForbiddenException(
-          'you are not allowed to remove the task of this user',
-        );
-      }
-    }
+    this.usersService.userHandleError(
+      'you are not allowed to remove the task of this user',
+      currentUser,
+      wantedTask,
+    );
 
     await this.taskRepository.removeBy({ _id });
     await db.query(aql`
