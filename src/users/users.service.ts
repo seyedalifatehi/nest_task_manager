@@ -131,7 +131,7 @@ export class UsersService {
     };
   }
 
-  // in this method admin can decrease a SUB_ADMIN's role to USER 
+  // in this method admin can decrease a SUB_ADMIN's role to USER
   async decreaseRole(currentUserEmail: string, selectedUserUsername: string) {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (currentUser.role !== 'ADMIN') {
@@ -208,7 +208,10 @@ export class UsersService {
   }
 
   // admin can remove a user with this method
-  async removeUser(username: string, currentUserEmail: string): Promise<Object> {
+  async removeUser(
+    username: string,
+    currentUserEmail: string,
+  ): Promise<Object> {
     const currentUser = this.findOneUserByEmail(currentUserEmail);
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
@@ -216,12 +219,12 @@ export class UsersService {
 
     await this.userRepository.removeBy({ username });
     return {
-      message: 
-    }
+      message: 'user removed successfully',
+    };
   }
 
-  // this method is for handling errors represent that admin have access 
-  //  to all the features of 
+  // this method is for handling errors represent that admin have access
+  //  to all the features of
   async userAccessHandleError(
     message: string,
     currentUser: UserEntity,

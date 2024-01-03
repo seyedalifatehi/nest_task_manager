@@ -26,10 +26,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'ثبتنام کاربر توسط ادمین',
   })
-  async createUser(
-    @Body() user: UserEntity,
-    @Request() req,
-  ): Promise<Object> {
+  async createUser(@Body() user: UserEntity, @Request() req): Promise<Object> {
     return this.usersService.createUser(user, req.user.email);
   }
 
@@ -84,14 +81,13 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
   })
-  async findOneUser(
-    @Param('username') username: string,
-  ): Promise<Object> {
-    const selectedUser = await this.usersService.findOneUserByUsername(username);
+  async findOneUser(@Param('username') username: string): Promise<Object> {
+    const selectedUser =
+      await this.usersService.findOneUserByUsername(username);
     return {
       username: selectedUser.username,
-      role: selectedUser.role
-    }
+      role: selectedUser.role,
+    };
   }
 
   @Delete(':username')
