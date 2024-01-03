@@ -105,4 +105,14 @@ export class UsersService {
   async removeUser(username: string): Promise<void> {
     await this.userRepository.removeBy({ username });
   }
+
+  async userHandleError(message: string, currentUser: UserEntity, wantedUser: UserEntity) {
+    if (currentUser.role !== 'ADMIN') {
+      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
+        throw new ForbiddenException(
+          message,
+        );
+      }
+    }
+  } 
 }

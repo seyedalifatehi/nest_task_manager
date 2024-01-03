@@ -64,13 +64,11 @@ export class TasksService {
       );
     }
 
-    if (currentUser.role !== 'ADMIN') {
-      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
-        throw new ForbiddenException(
-          'you are not allowed to define task for this user',
-        );
-      }
-    }
+    this.usersService.userHandleError(
+      'you are not allowed to define task for this user',
+      currentUser,
+      wantedUser,
+    );
 
     task.isCompleted = false;
     task.username = wantedUserUsername;
@@ -166,7 +164,7 @@ export class TasksService {
       }
     }
 
-    const removedTask = await this.taskRepository.removeBy({ _id });
+    await this.taskRepository.removeBy({ _id });
     await db.query(aql`
       FOR taskId IN ${wantedUser.userTaskIds}
         FILTER taskId == ${_id}
