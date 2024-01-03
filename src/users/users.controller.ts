@@ -9,13 +9,12 @@ import {
   Query,
   UseGuards,
   Request,
-  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiOperation } from '@nestjs/swagger';
-import { ArangoNewOldResult, ResultList } from 'nest-arango';
+import { ResultList } from 'nest-arango';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -96,15 +95,30 @@ export class UsersController {
     return await this.usersService.editEmail(req.user.email, newEmail);
   }
 
-  @Get(':username')
+  @Get('findByUsername/:username')
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
   })
-  async findOneUser(@Param('username') username: string): Promise<Object> {
+  async findOneUserByUsername(@Param('username') username: string): Promise<Object> {
     const selectedUser =
       await this.usersService.findOneUserByUsername(username);
     return {
       username: selectedUser.username,
+      email: selectedUser.email,
+      role: selectedUser.role,
+    };
+  }
+
+  @Get('findByEmail/:email')
+  @ApiOperation({
+    summary: 'گرفتن یک کاربر بر اساس ایمیل اش',
+  })
+  async findOneUserByEmail(@Param('email') email: string): Promise<Object> {
+    const selectedUser =
+      await this.usersService.findOneUserByEmail(email);
+    return {
+      username: selectedUser.username,
+      email: selectedUser.email,
       role: selectedUser.role,
     };
   }
