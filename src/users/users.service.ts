@@ -81,7 +81,7 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
-  //
+  // user can change his/her password here
   async changePassword(
     currentUserEmail: string,
     oldPassword: string,
@@ -105,7 +105,11 @@ export class UsersService {
     };
   }
 
-  async increaseRole(currentUserEmail: string, selectedUserUsername: string) {
+  // in this method admin can increase a USER's role to SUB_ADMIN
+  async increaseRole(
+    currentUserEmail: string,
+    selectedUserUsername: string,
+  ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can increase users roles');
@@ -120,7 +124,11 @@ export class UsersService {
       throw new ForbiddenException("this user's role is already SUB ADMIN");
     }
 
-    return this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
+    this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
+
+    return {
+      message: `${wantedUser.username}\'s role increased successfully`,
+    };
   }
 
   async decreaseRole(currentUserEmail: string, selectedUserUsername: string) {

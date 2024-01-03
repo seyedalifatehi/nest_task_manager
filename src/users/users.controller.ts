@@ -65,7 +65,7 @@ export class UsersController {
   async increaseRole(
     @Request() req,
     @Param('username') username: string,
-  ): Promise<ArangoNewOldResult<UserEntity>> {
+  ): Promise<Object> {
     return this.usersService.increaseRole(req.user.email, username);
   }
 
