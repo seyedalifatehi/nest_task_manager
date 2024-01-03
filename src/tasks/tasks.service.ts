@@ -194,6 +194,23 @@ export class TasksService {
   }
 
   
+  async showUsersTasks(email: string): Promise<Array<TaskEntity>> {
+    const user = await this.usersService.findOneUserByEmail(email)
+    
+    if (!user || !user.userTaskIds) {
+      throw new ForbiddenException('Invalid user or userTaskIds');
+    }
+
+    let tasks: TaskEntity[] = [];
+
+    for (let i = 0; i < user.userTaskIds.length; i++) {
+      // Ensure taskService and findOneTaskById are properly defined
+      const task = await this.tasksService.findOneTaskById(user.userTaskIds[i]);
+      tasks.push(task);
+    }
+
+    return tasks;
+  }
 
   async removeTask(_id: string, email: string): Promise<void> {
     const currentUser = await this.usersService.findOneUserByEmail(email);

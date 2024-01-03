@@ -9,8 +9,10 @@ import { ApiOperation } from '@nestjs/swagger';
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
+  
   constructor(
     private readonly tasksService: TasksService,
+    private usersService: UsersService,
   ) {}
 
   @Post()
@@ -21,7 +23,7 @@ export class TasksController {
     @Request() req, 
     @Body() taskData: { task: TaskEntity, username: string }
   ): Promise<TaskEntity> {
-    return this.tasksService.defineTask(taskData.task, taskData.username, req.user.email)
+    return await this.tasksService.defineTask(taskData.task, taskData.username, req.user.email)
   }
 
   @Get('subAdmins')
@@ -29,7 +31,7 @@ export class TasksController {
     summary: 'نشان دادن تسک های ساب ادمین ها',
   })
   async showTasksOfSubAdmins(@Request() req): Promise<any> {
-    return this.tasksService.showTasksOfSubAdmins(req.user.email);
+    return await this.tasksService.showTasksOfSubAdmins(req.user.email);
   }
 
   @Get('users')
@@ -37,7 +39,7 @@ export class TasksController {
     summary: 'نشان دادن تسک های کاربران عادی',
   })
   async showTasksOfUsers(@Request() req): Promise<any> {
-    return this.tasksService.showTasksOfUsers(req.user.email);
+    return await this.tasksService.showTasksOfUsers(req.user.email);
   }
 
   @Patch('changeTitle/:taskId')
@@ -45,7 +47,7 @@ export class TasksController {
     summary: 'تغییر عنوان یک تسک',
   })
   async changeTitle(@Param('taskId') taskId: string, @Body() newTitle: string, @Request() req) {
-    return this.tasksService.changeTitle(taskId, newTitle, req.user.email);
+    return await this.tasksService.changeTitle(taskId, newTitle, req.user.email);
   }
 
   @Patch('changeDescription/:taskId')
@@ -53,7 +55,15 @@ export class TasksController {
     summary: 'تغییر توضیحات یک تسک',
   })
   async changeDescription(@Param('taskId') taskId: string, @Body() newDescription: string, @Request() req) {
-    return this.tasksService.changeDescription(taskId, newDescription, req.user.email);
+    return await this.tasksService.changeDescription(taskId, newDescription, req.user.email);
+  }
+
+  @Get('showEnteredUserTasks')
+  @ApiOperation({
+    summary: 'نشان دادن تسک های کاربر وارد شده',
+  })
+  async showUsersTasks(@Request() req) {
+    return await this.tasksService.showUsersTasks(req.user.email);
   }
 
   @Delete(':taskId')

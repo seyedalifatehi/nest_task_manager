@@ -88,16 +88,6 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('showUsersTasks')
-  @ApiOperation({
-    summary: 'نشان دادن تسک های کاربر وارد شده',
-  })
-  async showUsersTasks(@Request() req) {
-    const user = this.usersService.findOneUserByEmail(req.user.email)
-    return await this.usersService.showUsersTasks(await user);
-  }
-
-  @UseGuards(AuthGuard)
   @Get(':username')
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
