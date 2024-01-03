@@ -140,26 +140,71 @@ export class TasksService {
     updatedTask: Partial<TaskEntity>,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const wantedTask = await this.taskRepository.findOneBy({ _id });
-    if (!wantedTask) {
-      throw new NotFoundException('task not found');
-    }
-
+    
     Object.assign(wantedTask, updatedTask);
     const updatedDocument = await this.taskRepository.update(wantedTask);
 
     return updatedDocument ? updatedDocument : null;
   }
 
+  async changeTitle(
+    taskId: string,
+    newTitle: string,
+    email: string,
+  ): Promise<ArangoNewOldResult<TaskEntity>> {
+    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const wantedTask = await this.findOneTaskById(taskId);
+    const username = wantedTask.username;
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
+
+    this.usersService.userAccessHandleError(
+      'you are not allowed to change the properties of this task',
+      currentUser,
+      wantedUser,
+    );
+
+    if (!wantedTask) {
+      throw new NotFoundException('task not found');
+    }
+
+    return this.updateTask(taskId, { title: newTitle });
+  }
+
+  async changeDescription(
+    taskId: string,
+    newDescription: string,
+    email: string,
+  ): Promise<ArangoNewOldResult<TaskEntity>> {
+    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const wantedTask = await this.findOneTaskById(taskId);
+    const username = wantedTask.username;
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
+
+    this.usersService.userAccessHandleError(
+      'you are not allowed to change the properties of this task',
+      currentUser,
+      wantedUser,
+    );
+
+    if (!wantedTask) {
+      throw new NotFoundException('task not found');
+    }
+
+    return this.updateTask(taskId, { description: newDescription });
+  }
+
+  
+
   async removeTask(_id: string, email: string): Promise<void> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
-    const wantedTask = await this.tasksService.findOneTaskById(_id);
+    const wantedTask = await this.findOneTaskById(_id);
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
     this.usersService.userAccessHandleError(
       'you are not allowed to remove the task of this user',
       currentUser,
-      wantedTask,
+      wantedUser,
     );
 
     await this.taskRepository.removeBy({ _id });

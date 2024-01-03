@@ -44,16 +44,16 @@ export class TasksController {
   @ApiOperation({
     summary: 'تغییر عنوان یک تسک',
   })
-  async changeTitle(@Param('taskId') taskId: string, @Body() newTitle: string) {
-    return this.tasksService.updateTask(taskId, { "title": newTitle });
+  async changeTitle(@Param('taskId') taskId: string, @Body() newTitle: string, @Request() req) {
+    return this.tasksService.changeTitle(taskId, newTitle, req.user.email);
   }
 
   @Patch('changeDescription/:taskId')
   @ApiOperation({
     summary: 'تغییر توضیحات یک تسک',
   })
-  async changeDescription(@Param('taskId') taskId: string, @Body() newDescription: string) {
-    return this.tasksService.updateTask(taskId, {"description": newDescription});
+  async changeDescription(@Param('taskId') taskId: string, @Body() newDescription: string, @Request() req) {
+    return this.tasksService.changeDescription(taskId, newDescription, req.user.email);
   }
 
   @Delete(':taskId')
