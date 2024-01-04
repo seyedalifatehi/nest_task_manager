@@ -189,13 +189,22 @@ export class UsersService {
       );
     }
 
-    const updatedUser = await this.updateUser(currentUser, {
+    await this.updateUser(currentUser, {
       username: newUsername,
     });
+
+    await db.query(aql`
+      FOR taskId IN ${currentUser.userTaskIds}
+        FOR task IN Tasks
+          FILTER task._id == taskId
+          LIMIT 1
+          UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
+    `);
+
     return {
       message: 'Your username has changed successfully!',
-      yourOldUsername: updatedUser[1].username,
-      yourNewUsername: updatedUser[0].username,
+      yourOldUsername: oldUsername,
+      yourNewUsername: newUsername,
     };
   }
 
@@ -212,8 +221,8 @@ export class UsersService {
     const updatedUser = await this.updateUser(currentUser, { email: newEmail });
     return {
       message: 'Your email has changed successfully!',
-      yourOldEmail: updatedUser[1].email,
-      yourNewEmail: updatedUser[0].email,
+      yourOldEmail: oldEmail,
+      yourNewEmail: newEmail,
     };
   }
 
@@ -254,7 +263,17 @@ export class UsersService {
   async updateUser(
     user: UserEntity,
     updatedUser: Partial<UserEntity>,
-  ): Promise<ArangoNewOldResult<UserEntity>> {
+  ): Promise<any> {
+    const updatedDocument1 = await db.query(aql`
+      FOR u IN Users
+        FILTER u.username == ${user.username}
+        LIMIT 1
+        UPDATE u WITH ${updatedUser} IN Users
+        RETURN NEW
+    `);
+
+    return updatedDocument1 ? updatedDocument1 : null;
+
     const username = user.username;
     const existingUser = await this.userRepository.findOneBy({ username });
 
@@ -277,11 +296,19 @@ export class UsersService {
       throw new ForbiddenException('only admin can delete users');
     }
 
-    const selectedUser = await this.findOneUserByUsername(username);
+    await db.query(aql`
+      LET user = (
+        FOR u IN Users
+          FILTER u.username == ${username}
+          LIMIT 1
+          RETURN u
+      )[0]
 
-    for (let i = 0; i < selectedUser.userTaskIds.length; i++) {
-      await this.tasksService.removeTask(selectedUser.userTaskIds[i], currentUserEmail)
-    }
+      FOR taskId IN user.userTaskIds
+        FOR task IN Tasks
+          FILTER task._id == taskId
+          REMOVE task IN Tasks
+    `);
 
     await this.userRepository.removeBy({ username });
     return {
