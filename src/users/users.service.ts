@@ -1,9 +1,7 @@
 import {
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
-  forwardRef,
 } from '@nestjs/common';
 import {
   InjectRepository,
@@ -123,8 +121,11 @@ export class UsersService {
     };
   }
 
-  //
-  async changeRole(currentUserEmail: string, selectedUserUsername: string): Promise<Object> {
+  // this method changes the role of a user based on his/her current user
+  async changeRole(
+    currentUserEmail: string,
+    selectedUserUsername: string,
+  ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can change users roles');
@@ -140,16 +141,12 @@ export class UsersService {
     } else {
       if (wantedUser.role === 'USER') {
         return this.increaseRole(wantedUser);
-      }
-    
-      else {
-        throw new ForbiddenException('you cannot change your role because you are admin')
+      } else {
+        throw new ForbiddenException(
+          'you cannot change your role because you are admin',
+        );
       }
     }
-
-    return {
-      message: `${wantedUser.username}\'s role decreased successfully`,
-    };
   }
 
   // this method changes the username of current user account

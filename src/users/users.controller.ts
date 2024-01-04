@@ -61,7 +61,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'تغییر سمت یک کاربر',
   })
-  async increaseRole(
+  async changeRole(
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
@@ -91,7 +91,9 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن یک کاربر بر اساس نام کاربری اش',
   })
-  async findOneUserByUsername(@Param('username') username: string): Promise<Object> {
+  async findOneUserByUsername(
+    @Param('username') username: string,
+  ): Promise<Object> {
     const selectedUser =
       await this.usersService.findOneUserByUsername(username);
     return {
@@ -106,8 +108,7 @@ export class UsersController {
     summary: 'گرفتن یک کاربر بر اساس ایمیل اش',
   })
   async findOneUserByEmail(@Param('email') email: string): Promise<Object> {
-    const selectedUser =
-      await this.usersService.findOneUserByEmail(email);
+    const selectedUser = await this.usersService.findOneUserByEmail(email);
     return {
       username: selectedUser.username,
       email: selectedUser.email,

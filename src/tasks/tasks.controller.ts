@@ -7,9 +7,7 @@ import {
   Param,
   Delete,
   Request,
-  ForbiddenException,
   UseGuards,
-  NotFoundException,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
