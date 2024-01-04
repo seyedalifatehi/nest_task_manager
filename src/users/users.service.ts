@@ -264,24 +264,10 @@ export class UsersService {
     user: UserEntity,
     updatedUser: Partial<UserEntity>,
   ): Promise<any> {
-    const updatedDocument1 = await db.query(aql`
-      FOR u IN Users
-        FILTER u.username == ${user.username}
-        LIMIT 1
-        UPDATE u WITH ${updatedUser} IN Users
-        RETURN NEW
+    const updatedDocument = await db.query(aql`
+      UPDATE ${user} WITH ${updatedUser} IN Users
+      RETURN NEW
     `);
-
-    return updatedDocument1 ? updatedDocument1 : null;
-
-    const username = user.username;
-    const existingUser = await this.userRepository.findOneBy({ username });
-
-    // updating wanted user field
-    Object.assign(existingUser, updatedUser);
-
-    // applying update to user field in database
-    const updatedDocument = await this.userRepository.update(existingUser);
 
     return updatedDocument ? updatedDocument : null;
   }

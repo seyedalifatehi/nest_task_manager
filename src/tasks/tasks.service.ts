@@ -137,13 +137,13 @@ export class TasksService {
 
   // this method is used for editing tasks
   async updateTask(
-    _id: string,
+    task: TaskEntity,
     updatedTask: Partial<TaskEntity>,
-  ): Promise<ArangoNewOldResult<TaskEntity>> {
-    const wantedTask = await this.taskRepository.findOneBy({ _id });
-
-    Object.assign(wantedTask, updatedTask);
-    const updatedDocument = await this.taskRepository.update(wantedTask);
+  ): Promise<any> {
+    const updatedDocument = await db.query(aql`
+      UPDATE ${task} WITH ${updatedTask} IN Tasks
+      RETURN NEW
+    `);
 
     return updatedDocument ? updatedDocument : null;
   }
@@ -153,10 +153,10 @@ export class TasksService {
     taskKey: string,
     newTitle: string,
     email: string,
-  ): Promise<ArangoNewOldResult<TaskEntity>> {
+  ): Promise<any> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
 
-    const wantedTask = await this.findOneTaskById("Tasks/" + taskKey);
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
     }
@@ -170,7 +170,7 @@ export class TasksService {
       wantedUser,
     );
 
-    return this.updateTask("Tasks/" + taskKey, { title: newTitle });
+    return this.updateTask(wantedTask, { title: newTitle });
   }
 
   // this method is used for changing description of a task
@@ -178,10 +178,10 @@ export class TasksService {
     taskKey: string,
     newDescription: string,
     email: string,
-  ): Promise<ArangoNewOldResult<TaskEntity>> {
+  ): Promise<any> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
 
-    const wantedTask = await this.findOneTaskById("Tasks/" + taskKey);
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
     }
@@ -195,7 +195,7 @@ export class TasksService {
       wantedUser,
     );
 
-    return this.updateTask("Tasks/" + taskKey, { description: newDescription });
+    return this.updateTask(wantedTask, { description: newDescription });
   }
 
   // this method shows the tasks of the logged in user
@@ -214,7 +214,7 @@ export class TasksService {
     `);
 
     if (!userTasks) {
-      throw new ForbiddenException('ther is no task for showing')
+      throw new ForbiddenException('ther is no task for showing');
     }
     return userTasks.all();
   }
@@ -249,7 +249,7 @@ export class TasksService {
     `);
 
     if (!userTasks) {
-      throw new ForbiddenException('ther is no task for showing')
+      throw new ForbiddenException('ther is no task for showing');
     }
     return userTasks.all();
   }
