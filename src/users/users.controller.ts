@@ -54,26 +54,18 @@ export class UsersController {
     );
   }
 
-  @Patch('increaseRole/:username')
+  // this controller changes the role of a user based on his/her current user
+  // if user's role is USER, it changrd to SUB_ADMIN
+  // and if user's role is SUB_ADMIN, it changrd to USER
+  @Patch('changeRole/:username')
   @ApiOperation({
-    summary: 'افزایش سمت یک کاربر',
+    summary: 'تغییر سمت یک کاربر',
   })
   async increaseRole(
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return this.usersService.increaseRole(req.user.email, username);
-  }
-
-  @Patch('decreaseRole/:username')
-  @ApiOperation({
-    summary: 'کاهش سمت یک کاربر',
-  })
-  async decreaseRole(
-    @Request() req,
-    @Param('username') username: string,
-  ): Promise<Object> {
-    return this.usersService.decreaseRole(req.user.email, username);
+    return this.usersService.changeRole(req.user.email, username);
   }
 
   @Patch('editUsername')

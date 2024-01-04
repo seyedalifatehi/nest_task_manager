@@ -106,25 +106,8 @@ export class UsersService {
   }
 
   // in this method admin can increase a USER's role to SUB_ADMIN
-  async increaseRole(
-    currentUserEmail: string,
-    selectedUserUsername: string,
-  ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
-    if (currentUser.role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can increase users roles');
-    }
-
-    const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
-    if (!wantedUser) {
-      throw new NotFoundException('User Not Found');
-    }
-
-    if (wantedUser.role !== 'USER') {
-      throw new ForbiddenException("this user's role is already SUB ADMIN");
-    }
-
-    await this.updateUser(currentUser.username, { role: 'SUB_ADMIN' });
+  async increaseRole(wantedUser: UserEntity): Promise<Object> {
+    await this.updateUser(wantedUser.username, { role: 'SUB_ADMIN' });
 
     return {
       message: `${wantedUser.username}\'s role increased successfully`,
@@ -132,10 +115,19 @@ export class UsersService {
   }
 
   // in this method admin can decrease a SUB_ADMIN's role to USER
-  async decreaseRole(currentUserEmail: string, selectedUserUsername: string) {
+  async decreaseRole(wantedUser: UserEntity): Promise<Object> {
+    await this.updateUser(wantedUser.username, { role: 'USER' });
+
+    return {
+      message: `${wantedUser.username}\'s role decreased successfully`,
+    };
+  }
+
+  //
+  async changeRole(currentUserEmail: string, selectedUserUsername: string): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (currentUser.role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can decrease sub admins roles');
+      throw new ForbiddenException('only admin can change users roles');
     }
 
     const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
@@ -143,11 +135,17 @@ export class UsersService {
       throw new NotFoundException('User Not Found');
     }
 
-    if (wantedUser.role !== 'SUB_ADMIN') {
-      throw new ForbiddenException("this user's role is already USER");
+    if (wantedUser.role === 'SUB_ADMIN') {
+      return this.decreaseRole(wantedUser);
+    } else {
+      if (wantedUser.role === 'USER') {
+        return this.increaseRole(wantedUser);
+      }
+    
+      else {
+        throw new ForbiddenException('you cannot change your role because you are admin')
+      }
     }
-
-    await this.updateUser(currentUser.username, { role: 'USER' });
 
     return {
       message: `${wantedUser.username}\'s role decreased successfully`,
@@ -161,7 +159,9 @@ export class UsersService {
   ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (newUsername === currentUser.username) {
-      throw new ForbiddenException('you cannot consider your current username as your new username');
+      throw new ForbiddenException(
+        'you cannot consider your current username as your new username',
+      );
     }
 
     this.updateUser(currentUser.username, { username: newUsername });
@@ -174,7 +174,9 @@ export class UsersService {
   async editEmail(currentUserEmail: string, newEmail: string): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
     if (newEmail === currentUser.email) {
-      throw new ForbiddenException('you cannot consider your current email as your new email');
+      throw new ForbiddenException(
+        'you cannot consider your current email as your new email',
+      );
     }
 
     this.updateUser(currentUser.username, { email: newEmail });
