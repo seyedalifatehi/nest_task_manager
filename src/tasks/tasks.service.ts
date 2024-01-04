@@ -85,7 +85,7 @@ export class TasksService {
       );
     }
 
-    const cursor = await db.query(aql`
+    const query = await db.query(aql`
       LET subAdmins = (
         FOR user IN Users
           FILTER user.role == 'SUB_ADMIN'
@@ -98,7 +98,7 @@ export class TasksService {
           RETURN task
     `);
 
-    return await cursor.all();
+    return await query.all();
   }
 
   // this method returns all tasks of users
@@ -150,13 +150,13 @@ export class TasksService {
 
   // this method is used for changing title of a task
   async changeTitle(
-    taskId: string,
+    taskKey: string,
     newTitle: string,
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
 
-    const wantedTask = await this.findOneTaskById(taskId);
+    const wantedTask = await this.findOneTaskById("Tasks/" + taskKey);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
     }
@@ -170,18 +170,18 @@ export class TasksService {
       wantedUser,
     );
 
-    return this.updateTask(taskId, { title: newTitle });
+    return this.updateTask("Tasks/" + taskKey, { title: newTitle });
   }
 
   // this method is used for changing description of a task
   async changeDescription(
-    taskId: string,
+    taskKey: string,
     newDescription: string,
     email: string,
   ): Promise<ArangoNewOldResult<TaskEntity>> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
 
-    const wantedTask = await this.findOneTaskById(taskId);
+    const wantedTask = await this.findOneTaskById("Tasks/" + taskKey);
     if (!wantedTask) {
       throw new NotFoundException('task not found');
     }
@@ -195,7 +195,7 @@ export class TasksService {
       wantedUser,
     );
 
-    return this.updateTask(taskId, { description: newDescription });
+    return this.updateTask("Tasks/" + taskKey, { description: newDescription });
   }
 
   // this method shows the tasks of the logged in user
@@ -207,14 +207,15 @@ export class TasksService {
           RETURN u
       )[0]
       
-      IF !user || !user.userTaskIds
-        THROW { "errorCode": 403, "errorMessage": "Invalid user or userTaskIds" }
-      
+      FILTER user && user.userTaskIds
       FOR taskId IN user.userTaskIds
         LET task = DOCUMENT(Tasks, taskId)
         RETURN task
     `);
 
+    if (!userTasks) {
+      throw new ForbiddenException('ther is no task for showing')
+    }
     return userTasks.all();
   }
 
@@ -241,14 +242,15 @@ export class TasksService {
           RETURN u
       )[0]
       
-      IF !user || !user.userTaskIds
-        THROW { "errorCode": 403, "errorMessage": "Invalid user or userTaskIds" }
-      
+      FILTER user && user.userTaskIds
       FOR taskId IN user.userTaskIds
         LET task = DOCUMENT(Tasks, taskId)
         RETURN task
     `);
 
+    if (!userTasks) {
+      throw new ForbiddenException('ther is no task for showing')
+    }
     return userTasks.all();
   }
 

@@ -50,34 +50,34 @@ export class TasksController {
     return await this.tasksService.showTasksOfUsers(req.user.email);
   }
 
-  @Patch('changeTitle/:taskId')
+  @Patch('changeTitle/:taskKey')
   @ApiOperation({
     summary: 'تغییر عنوان یک تسک',
   })
   async changeTitle(
-    @Param('taskId') taskId: string,
-    @Body() newTitle: string,
+    @Param('taskKey') taskKey: string,
+    @Body() newTitleData: { newTitle: string },
     @Request() req,
   ) {
     return await this.tasksService.changeTitle(
-      taskId,
-      newTitle,
+      taskKey,
+      newTitleData.newTitle,
       req.user.email,
     );
   }
 
-  @Patch('changeDescription/:taskId')
+  @Patch('changeDescription/:taskKey')
   @ApiOperation({
     summary: 'تغییر توضیحات یک تسک',
   })
   async changeDescription(
-    @Param('taskId') taskId: string,
-    @Body() newDescription: string,
+    @Param('taskKey') taskKey: string,
+    @Body() newDescriptionData: { newDescription: string },
     @Request() req,
   ) {
     return await this.tasksService.changeDescription(
-      taskId,
-      newDescription,
+      taskKey,
+      newDescriptionData.newDescription,
       req.user.email,
     );
   }
@@ -104,14 +104,14 @@ export class TasksController {
     );
   }
 
-  @Delete(':taskId')
+  @Delete(':taskKey')
   @ApiOperation({
     summary: 'حذف کردن تسک',
   })
   async removeTask(
     @Request() req,
-    @Param('taskId') taskId: string,
+    @Param('taskKey') taskKey: string,
   ): Promise<void> {
-    return await this.tasksService.removeTask(taskId, req.user.email);
+    return await this.tasksService.removeTask("Tasks/" + taskKey, req.user.email);
   }
 }

@@ -1,7 +1,9 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import {
   InjectRepository,
@@ -12,6 +14,7 @@ import {
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
 import { TaskEntity } from 'src/tasks/entities/task.entity';
+import { TasksService } from 'src/tasks/tasks.service';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -29,8 +32,8 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
 
-    @InjectRepository(TaskEntity)
-    private readonly taskRepository: ArangoRepository<TaskEntity>,
+    @Inject(forwardRef(() => TasksService))
+    private readonly tasksService: TasksService,
   ) {}
 
   // this methos is for creating user accounts
@@ -186,7 +189,9 @@ export class UsersService {
       );
     }
 
-    const updatedUser = await this.updateUser(currentUser, { username: newUsername });
+    const updatedUser = await this.updateUser(currentUser, {
+      username: newUsername,
+    });
     return {
       message: 'Your username has changed successfully!',
       yourOldUsername: updatedUser[1].username,
@@ -250,7 +255,7 @@ export class UsersService {
     user: UserEntity,
     updatedUser: Partial<UserEntity>,
   ): Promise<ArangoNewOldResult<UserEntity>> {
-    const username = user.username
+    const username = user.username;
     const existingUser = await this.userRepository.findOneBy({ username });
 
     // updating wanted user field
@@ -272,10 +277,10 @@ export class UsersService {
       throw new ForbiddenException('only admin can delete users');
     }
 
-    const selectedUser = await this.findOneUserByUsername(username)
+    const selectedUser = await this.findOneUserByUsername(username);
 
     for (let i = 0; i < selectedUser.userTaskIds.length; i++) {
-      await this.taskRepository.removeBy({ _id: selectedUser.userTaskIds[i] })
+      await this.tasksService.removeTask(selectedUser.userTaskIds[i], currentUserEmail)
     }
 
     await this.userRepository.removeBy({ username });
