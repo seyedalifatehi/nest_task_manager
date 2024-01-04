@@ -26,7 +26,7 @@ export class UsersController {
     summary: 'ثبتنام کاربر توسط ادمین',
   })
   async createUser(@Body() user: UserEntity, @Request() req): Promise<Object> {
-    return this.usersService.createUser(user, req.user.email);
+    return await this.usersService.createUser(user, req.user.email);
   }
 
   @Get()

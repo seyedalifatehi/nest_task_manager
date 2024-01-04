@@ -20,6 +20,7 @@ const db = new Database({
     password: 'azim1383',
   },
 });
+const Users = db.collection('Users');
 
 @Injectable()
 export class UsersService {
@@ -40,27 +41,46 @@ export class UsersService {
       throw new ForbiddenException('only admin can add new user!');
     }
 
-    await db.query(aql`
-    FOR u IN users
-      FILTER u.email == ${user.email}
-      LIMIT 1
-      THROW { "errorCode": 403, "errorMessage": "This email already exists" }
-  
-    FOR u IN users
-      FILTER u.username == ${user.username}
-      LIMIT 1
-      THROW { "errorCode": 403, "errorMessage": "This username already exists" }
-    `);
+    const query = await db.query(aql`
+        LET emailExists = (
+            FOR u IN Users
+            FILTER u.email == ${user.email}
+            RETURN u
+        )
+        
+        LET usernameExists = (
+            FOR u IN Users
+            FILTER u.username == ${user.username}
+            RETURN u
+        )
+        
+        LET userWithEmailExists = LENGTH(emailExists) > 0
+        LET userWithUsernameExists = LENGTH(usernameExists) > 0
+      
+        LET createdUser = (
+            FILTER !userWithEmailExists && !userWithUsernameExists
+            INSERT {
+                "role": "USER",
+                "userTaskIds": ${[]},
+                "username": ${user.username},
+                "email": ${user.email},
+                "password": ${user.password}
+            } INTO Users
+            RETURN {
+                "username": ${user.username},
+                "email": ${user.email},
+                "message": 'User created successfully'
+            }
+        )
+        
+        RETURN LENGTH(createdUser) > 0 ? createdUser[0] : null
+      `);
+    const createdUser = await query.next();
 
-    user.role = 'USER';
-    user.userTaskIds = [];
-    const createdUser = await this.userRepository.save(user);
-
-    return {
-      username: createdUser.username,
-      email: createdUser.email,
-      message: 'user created successfully',
-    };
+    if (!createdUser) {
+      throw new ForbiddenException('this username or email already exists');
+    }
+    return createdUser;
   }
 
   // this method shows all of the users
