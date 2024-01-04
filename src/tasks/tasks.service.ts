@@ -51,10 +51,6 @@ export class TasksService {
       await this.usersService.findOneUserByUsername(wantedUserUsername);
     console.log(wantedUser);
 
-    if (wantedUser === undefined) {
-      throw new NotFoundException('this username not exists');
-    }
-
     if (
       wantedUser.username === currentUser.username &&
       wantedUser.role !== 'ADMIN'
@@ -75,7 +71,7 @@ export class TasksService {
     const definedTask = await this.taskRepository.save(task);
 
     wantedUser.userTaskIds.push(definedTask._id);
-    await this.usersService.updateUser(wantedUser.username, wantedUser);
+    await this.usersService.updateUser(wantedUser, wantedUser);
 
     return definedTask;
   }
@@ -256,6 +252,7 @@ export class TasksService {
     return userTasks.all();
   }
 
+  // this method removes a task
   async removeTask(_id: string, email: string): Promise<void> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
     const wantedTask = await this.findOneTaskById(_id);

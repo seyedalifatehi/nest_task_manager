@@ -74,17 +74,26 @@ export class UsersController {
   })
   async editUsername(
     @Request() req,
-    @Body() newUsername: string,
+    @Body() newUsernameData: { newUsername: string },
   ): Promise<Object> {
-    return await this.usersService.editUsername(req.user.email, newUsername);
+    return await this.usersService.editUsername(
+      req.user.email,
+      newUsernameData.newUsername,
+    );
   }
 
   @Patch('editEmail')
   @ApiOperation({
     summary: 'تغییر ایمیل کاربر کنونی',
   })
-  async editEmail(@Request() req, @Body() newEmail: string): Promise<Object> {
-    return await this.usersService.editEmail(req.user.email, newEmail);
+  async editEmail(
+    @Request() req,
+    @Body() newEmailData: { newEmail: string },
+  ): Promise<Object> {
+    return await this.usersService.editEmail(
+      req.user.email,
+      newEmailData.newEmail,
+    );
   }
 
   @Get('findByUsername/:username')
@@ -96,19 +105,6 @@ export class UsersController {
   ): Promise<Object> {
     const selectedUser =
       await this.usersService.findOneUserByUsername(username);
-    return {
-      username: selectedUser.username,
-      email: selectedUser.email,
-      role: selectedUser.role,
-    };
-  }
-
-  @Get('findByEmail/:email')
-  @ApiOperation({
-    summary: 'گرفتن یک کاربر بر اساس ایمیل اش',
-  })
-  async findOneUserByEmail(@Param('email') email: string): Promise<Object> {
-    const selectedUser = await this.usersService.findOneUserByEmail(email);
     return {
       username: selectedUser.username,
       email: selectedUser.email,

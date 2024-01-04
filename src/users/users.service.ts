@@ -11,6 +11,7 @@ import {
 } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
+import { TaskEntity } from 'src/tasks/entities/task.entity';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -27,6 +28,9 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
+
+    @InjectRepository(TaskEntity)
+    private readonly taskRepository: ArangoRepository<TaskEntity>,
   ) {}
 
   // this methos is for creating user accounts
@@ -116,7 +120,7 @@ export class UsersService {
     if (newPassword === oldPassword) {
       throw new ForbiddenException('This is your current password.');
     }
-    this.updateUser(currentUser.username, { password: newPassword });
+    this.updateUser(currentUser, { password: newPassword });
 
     return {
       message: 'password changed successfully',
@@ -125,7 +129,7 @@ export class UsersService {
 
   // in this method admin can increase a USER's role to SUB_ADMIN
   async increaseRole(wantedUser: UserEntity): Promise<Object> {
-    await this.updateUser(wantedUser.username, { role: 'SUB_ADMIN' });
+    await this.updateUser(wantedUser, { role: 'SUB_ADMIN' });
 
     return {
       message: `${wantedUser.username}\'s role increased successfully`,
@@ -134,7 +138,7 @@ export class UsersService {
 
   // in this method admin can decrease a SUB_ADMIN's role to USER
   async decreaseRole(wantedUser: UserEntity): Promise<Object> {
-    await this.updateUser(wantedUser.username, { role: 'USER' });
+    await this.updateUser(wantedUser, { role: 'USER' });
 
     return {
       message: `${wantedUser.username}\'s role decreased successfully`,
@@ -175,30 +179,36 @@ export class UsersService {
     newUsername: string,
   ): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
-    if (newUsername === currentUser.username) {
+    const oldUsername = currentUser.username;
+    if (newUsername === oldUsername) {
       throw new ForbiddenException(
         'you cannot consider your current username as your new username',
       );
     }
 
-    this.updateUser(currentUser.username, { username: newUsername });
+    const updatedUser = await this.updateUser(currentUser, { username: newUsername });
     return {
       message: 'Your username has changed successfully!',
+      yourOldUsername: updatedUser[1].username,
+      yourNewUsername: updatedUser[0].username,
     };
   }
 
   // this method changes the email of current user account
   async editEmail(currentUserEmail: string, newEmail: string): Promise<Object> {
     const currentUser = await this.findOneUserByEmail(currentUserEmail);
-    if (newEmail === currentUser.email) {
+    const oldEmail = currentUser.email;
+    if (newEmail === oldEmail) {
       throw new ForbiddenException(
         'you cannot consider your current email as your new email',
       );
     }
 
-    this.updateUser(currentUser.username, { email: newEmail });
+    const updatedUser = await this.updateUser(currentUser, { email: newEmail });
     return {
       message: 'Your email has changed successfully!',
+      yourOldEmail: updatedUser[1].email,
+      yourNewEmail: updatedUser[0].email,
     };
   }
 
@@ -237,14 +247,11 @@ export class UsersService {
 
   // this mehod is used for edit a user account
   async updateUser(
-    username: string,
+    user: UserEntity,
     updatedUser: Partial<UserEntity>,
   ): Promise<ArangoNewOldResult<UserEntity>> {
-    // checking user existance
+    const username = user.username
     const existingUser = await this.userRepository.findOneBy({ username });
-    if (!existingUser) {
-      throw new NotFoundException('user not found');
-    }
 
     // updating wanted user field
     Object.assign(existingUser, updatedUser);
@@ -260,9 +267,15 @@ export class UsersService {
     username: string,
     currentUserEmail: string,
   ): Promise<Object> {
-    const currentUser = this.findOneUserByEmail(currentUserEmail);
-    if ((await currentUser).role !== 'ADMIN') {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
+    }
+
+    const selectedUser = await this.findOneUserByUsername(username)
+
+    for (let i = 0; i < selectedUser.userTaskIds.length; i++) {
+      await this.taskRepository.removeBy({ _id: selectedUser.userTaskIds[i] })
     }
 
     await this.userRepository.removeBy({ username });
