@@ -70,13 +70,17 @@ export class TasksService {
     task.username = wantedUserUsername;
 
     const existingTask = await db.query(aql`
-      FOR task IN Tasks
-        FILTER task.username == ${task.username} && task.isCompleted == ${task.isCompleted} && task.title == ${task.title} && task.description == ${task.description}
-        LIMIT 1
-        RETURN task
+      LET existTask = (
+        FOR t IN Tasks
+          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.title == ${task.title} && t.description == ${task.description}
+          LIMIT 1
+          RETURN t
+      )
+
+      RETURN existTask[0]
     `);
 
-    if (existingTask) {
+    if (await existingTask.next()) {
       throw new ForbiddenException('this task is defined previously');
     }
     const definedTask = await this.taskRepository.save(task);
