@@ -82,6 +82,20 @@ export class TasksController {
     );
   }
 
+  @Patch('acceptTask/:taskKey')
+  @ApiOperation({
+    summary: 'تغییر توضیحات یک تسک',
+  })
+  async acceptTask(
+    @Param('taskKey') taskKey: string,
+    @Request() req,
+  ) {
+    return await this.tasksService.acceptTask(
+      taskKey,
+      req.user.email,
+    );
+  }
+
   @Get('showEnteredUserTasks')
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر وارد شده',
@@ -112,6 +126,9 @@ export class TasksController {
     @Request() req,
     @Param('taskKey') taskKey: string,
   ): Promise<void> {
-    return await this.tasksService.removeTask("Tasks/" + taskKey, req.user.email);
+    return await this.tasksService.removeTask(
+      'Tasks/' + taskKey,
+      req.user.email,
+    );
   }
 }

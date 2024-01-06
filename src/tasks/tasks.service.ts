@@ -68,6 +68,17 @@ export class TasksService {
 
     task.isCompleted = false;
     task.username = wantedUserUsername;
+
+    const existingTask = await db.query(aql`
+      FOR task IN Tasks
+        FILTER task.username == ${task.username} && task.isCompleted == ${task.isCompleted} && task.title == ${task.title} && task.description == ${task.description}
+        LIMIT 1
+        RETURN task
+    `);
+
+    if (existingTask) {
+      throw new ForbiddenException('this task is defined previously');
+    }
     const definedTask = await this.taskRepository.save(task);
 
     wantedUser.userTaskIds.push(definedTask._id);
@@ -125,6 +136,17 @@ export class TasksService {
     return await cursor.all();
   }
 
+  // this method make isConpleted property of tasks true
+  async acceptTask(taskKey: string, currentUserEmail: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    if ((await currentUser).role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can accept tasks');
+    }
+
+    return await this.updateTask(wantedTask, { isCompleted: true });
+  }
+
   // this method returns a task by an Id
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
     return await this.taskRepository.findOneBy({ _id });
@@ -145,7 +167,7 @@ export class TasksService {
       RETURN NEW
     `);
 
-    return updatedDocument ? updatedDocument : null;
+    return updatedDocument ? updatedDocument.next() : null;
   }
 
   // this method is used for changing title of a task
