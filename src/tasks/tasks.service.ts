@@ -148,6 +148,9 @@ export class TasksService {
       throw new ForbiddenException('only admin can accept tasks');
     }
 
+    if (wantedTask.isCompleted) {
+      throw new ForbiddenException('this task is already accepted');
+    }
     return await this.updateTask(wantedTask, { isCompleted: true });
   }
 
