@@ -37,7 +37,7 @@ export class UsersController {
   })
   async findAllUsers(
     @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
-  ): Promise<ResultList<UserEntity>> {
+  ): Promise<Object> {
     return this.usersService.findAllUsers(role);
   }
 

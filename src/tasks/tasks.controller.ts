@@ -14,7 +14,6 @@ import { TaskEntity } from './entities/task.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-
 @ApiTags('tasks')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
@@ -89,14 +88,8 @@ export class TasksController {
   @ApiOperation({
     summary: 'تغییر توضیحات یک تسک',
   })
-  async acceptTask(
-    @Param('taskKey') taskKey: string,
-    @Request() req,
-  ) {
-    return await this.tasksService.acceptTask(
-      taskKey,
-      req.user.email,
-    );
+  async acceptTask(@Param('taskKey') taskKey: string, @Request() req) {
+    return await this.tasksService.acceptTask(taskKey, req.user.email);
   }
 
   @Get('showEnteredUserTasks')

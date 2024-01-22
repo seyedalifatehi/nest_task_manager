@@ -92,18 +92,35 @@ export class UsersService {
 
   // this method shows all of the users
   // you can filter users by their role
-  async findAllUsers(
-    role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
-  ): Promise<ResultList<UserEntity>> {
+  async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<Object> {
+    const elements = [];
+
     if (role) {
-      const rolesArray = this.userRepository.findManyBy({ role });
-      if ((await rolesArray).results.length === 0) {
+      const rolesArray = (await this.userRepository.findManyBy({ role }))
+        .results;
+      if (rolesArray.length === 0) {
         throw new NotFoundException('Role Not Found');
       }
-      return rolesArray;
+
+      for (let i = 0; i < rolesArray.length; i++) {
+        elements.push({
+          email: rolesArray[i].email,
+          username: rolesArray[i].username,
+          role: rolesArray[i].role,
+        });
+      }
+      return elements;
     }
 
-    return await this.userRepository.findAll();
+    const rolesArray = (await this.userRepository.findAll()).results;
+    for (let i = 0; i < rolesArray.length; i++) {
+      elements.push({
+        email: rolesArray[i].email,
+        username: rolesArray[i].username,
+        role: rolesArray[i].role,
+      });
+    }
+    return elements;
   }
 
   // user can change his/her password here
