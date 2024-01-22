@@ -13,9 +13,11 @@ import {
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResultList } from 'nest-arango';
 
+@ApiTags('users')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {

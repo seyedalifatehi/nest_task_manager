@@ -12,8 +12,11 @@ import {
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('tasks')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
