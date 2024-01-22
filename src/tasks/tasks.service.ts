@@ -201,7 +201,7 @@ export class TasksService {
       throw new ForbiddenException("this is this task's current title");
     }
 
-    return this.updateTask(wantedTask, { title: newTitle });
+    return await this.updateTask(wantedTask, { title: newTitle });
   }
 
   // this method is used for changing description of a task
@@ -230,7 +230,7 @@ export class TasksService {
       throw new ForbiddenException("this is this task's current description");
     }
 
-    return this.updateTask(wantedTask, { description: newDescription });
+    return await this.updateTask(wantedTask, { description: newDescription });
   }
 
   // this method shows the tasks of the logged in user
@@ -286,11 +286,11 @@ export class TasksService {
     if (!userTasks) {
       throw new ForbiddenException('ther is no task for showing');
     }
-    return userTasks.all();
+    return await userTasks.all();
   }
 
   // this method removes a task
-  async removeTask(_id: string, email: string): Promise<void> {
+  async removeTask(_id: string, email: string): Promise<Object> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
     const wantedTask = await this.findOneTaskById(_id);
     const username = wantedTask.username;
@@ -308,5 +308,9 @@ export class TasksService {
         FILTER taskId == ${_id}
         REMOVE taskId IN ${wantedUser.userTaskIds}
     `);
+
+    return {
+      message: 'task deleted successfully',
+    };
   }
 }

@@ -121,7 +121,7 @@ export class TasksController {
   async removeTask(
     @Request() req,
     @Param('taskKey') taskKey: string,
-  ): Promise<void> {
+  ): Promise<Object> {
     return await this.tasksService.removeTask(
       'Tasks/' + taskKey,
       req.user.email,
