@@ -198,7 +198,7 @@ export class TasksService {
     }
 
     if (wantedTask.title === newTitle) {
-      throw new ForbiddenException('this is this task\'s current title')
+      throw new ForbiddenException("this is this task's current title");
     }
 
     return this.updateTask(wantedTask, { title: newTitle });
@@ -226,7 +226,9 @@ export class TasksService {
       );
     }
 
-    
+    if (wantedTask.description === newDescription) {
+      throw new ForbiddenException("this is this task's current description");
+    }
 
     return this.updateTask(wantedTask, { description: newDescription });
   }
