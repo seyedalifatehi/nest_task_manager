@@ -85,7 +85,7 @@ export class UsersService {
   // this method shows all of the users
   // you can filter users by their role
   async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<any> {
-    let users;
+    let users: string | any[];
     
     if (role) {
       const usersQuery = await db.query(aql`
