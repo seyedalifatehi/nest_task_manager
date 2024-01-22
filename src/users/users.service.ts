@@ -92,35 +92,40 @@ export class UsersService {
 
   // this method shows all of the users
   // you can filter users by their role
-  async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<Object> {
-    const elements = [];
-
+  async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<any> {
+    let users;
+    
     if (role) {
-      const rolesArray = (await this.userRepository.findManyBy({ role }))
-        .results;
-      if (rolesArray.length === 0) {
+      const usersQuery = await db.query(aql`
+        FOR u IN Users
+        FILTER u.role == ${role} 
+        RETURN {
+          "username": u.username,
+          "email": u.email,
+          "role": u.role
+        }
+      `);
+
+      users = await usersQuery.all()
+      
+      if ((users.length === 0) && role != 'USER' && role != 'SUB_ADMIN' && role != 'ADMIN') {
         throw new NotFoundException('Role Not Found');
       }
 
-      for (let i = 0; i < rolesArray.length; i++) {
-        elements.push({
-          email: rolesArray[i].email,
-          username: rolesArray[i].username,
-          role: rolesArray[i].role,
-        });
-      }
-      return elements;
+      return users;
     }
 
-    const rolesArray = (await this.userRepository.findAll()).results;
-    for (let i = 0; i < rolesArray.length; i++) {
-      elements.push({
-        email: rolesArray[i].email,
-        username: rolesArray[i].username,
-        role: rolesArray[i].role,
-      });
-    }
-    return elements;
+    const allUsersQuery = await db.query(aql`
+      FOR u IN Users
+      RETURN {
+        "username": u.username,
+        "email": u.email,
+        "role": u.role
+      }
+    `);
+
+    users = await allUsersQuery.all()
+    return users;
   }
 
   // user can change his/her password here
