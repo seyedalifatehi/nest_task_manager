@@ -197,6 +197,10 @@ export class TasksService {
       throw new ForbiddenException('you are not allowed to edit this task');
     }
 
+    if (wantedTask.title === newTitle) {
+      throw new ForbiddenException('this is this task\'s current title')
+    }
+
     return this.updateTask(wantedTask, { title: newTitle });
   }
 
@@ -221,6 +225,8 @@ export class TasksService {
         'you are not allowed to change the properties of this task',
       );
     }
+
+    
 
     return this.updateTask(wantedTask, { description: newDescription });
   }
