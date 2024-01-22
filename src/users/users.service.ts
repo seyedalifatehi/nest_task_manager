@@ -8,13 +8,9 @@ import {
 import {
   InjectRepository,
   ArangoRepository,
-  ResultList,
-  ArangoNewOldResult,
 } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
-import { TaskEntity } from 'src/tasks/entities/task.entity';
-import { TasksService } from 'src/tasks/tasks.service';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -24,16 +20,12 @@ const db = new Database({
     password: 'azim1383',
   },
 });
-const Users = db.collection('Users');
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: ArangoRepository<UserEntity>,
-
-    @Inject(forwardRef(() => TasksService))
-    private readonly tasksService: TasksService,
   ) {}
 
   // this methos is for creating user accounts
