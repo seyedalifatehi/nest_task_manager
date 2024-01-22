@@ -59,12 +59,15 @@ export class TasksService {
         'only admin can define task for him/herself',
       );
     }
-
-    await this.usersService.userAccessHandleError(
-      'you are not allowed to define task for this user',
-      currentUser,
-      wantedUser,
-    );
+    
+    if (
+      !this.usersService.userAccessHandleError(
+        currentUser,
+        wantedUser,
+      )
+    ) {
+      throw new ForbiddenException('you are not allowed to define task for this user')
+    }
 
     task.isCompleted = false;
     task.username = wantedUserUsername;
@@ -193,11 +196,14 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    this.usersService.userAccessHandleError(
-      'you are not allowed to edit this task',
-      currentUser,
-      wantedUser,
-    );
+    if (
+      !this.usersService.userAccessHandleError(
+        currentUser,
+        wantedUser,
+      )
+    ) {
+      throw new ForbiddenException('you are not allowed to edit this task')
+    }
 
     return this.updateTask(wantedTask, { title: newTitle });
   }
@@ -218,11 +224,14 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    this.usersService.userAccessHandleError(
-      'you are not allowed to change the properties of this task',
-      currentUser,
-      wantedUser,
-    );
+    if (
+      !this.usersService.userAccessHandleError(
+        currentUser,
+        wantedUser,
+      )
+    ) {
+      throw new ForbiddenException('you are not allowed to change the properties of this task')
+    }
 
     return this.updateTask(wantedTask, { description: newDescription });
   }
@@ -258,16 +267,19 @@ export class TasksService {
     const wantedUser =
       await this.usersService.findOneUserByUsername(desiredUserUsername);
 
-    this.usersService.userAccessHandleError(
-      'you are not allowed to see the tasks of this user',
-      currentUser,
-      wantedUser,
-    );
+    if (
+      !this.usersService.userAccessHandleError(
+        currentUser,
+        wantedUser,
+      )
+    ) {
+      throw new ForbiddenException('you are not allowed to see the tasks of this user')
+    }
 
     const userTasks = await db.query(aql`
       LET user = (
         FOR u IN Users
-          FILTER u.email == ${desiredUserUsername}
+          FILTER u.username == ${desiredUserUsername}
           RETURN u
       )[0]
       
@@ -290,12 +302,15 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    this.usersService.userAccessHandleError(
-      'you are not allowed to remove the task of this user',
-      currentUser,
-      wantedUser,
-    );
-
+    if (
+      !this.usersService.userAccessHandleError(
+        currentUser,
+        wantedUser,
+      )
+    ) {
+      throw new ForbiddenException('you are not allowed to remove the task of this user')
+    }
+    
     await this.taskRepository.removeBy({ _id });
     await db.query(aql`
       FOR taskId IN ${wantedUser.userTaskIds}

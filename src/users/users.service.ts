@@ -305,14 +305,15 @@ export class UsersService {
   // this method is for handling errors represent that admin have access to all the features of
   // sub admins and user and sub admin have access to all the features of users
   async userAccessHandleError(
-    message: string,
     currentUser: UserEntity,
     wantedUser: UserEntity,
   ) {
     if (currentUser.role !== 'ADMIN') {
       if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
-        throw new ForbiddenException(message);
+        return false;
       }
     }
+  
+    return true;
   }
 }
