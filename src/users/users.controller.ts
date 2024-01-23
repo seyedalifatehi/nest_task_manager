@@ -13,7 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResultList } from 'nest-arango';
 
 @ApiTags('users')
@@ -38,7 +38,7 @@ export class UsersController {
   async findAllUsers(
     @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
   ): Promise<any> {
-    return this.usersService.findAllUsers(role);
+    return await this.usersService.findAllUsers(role);
   }
 
   @Patch('changePassword')
@@ -49,7 +49,7 @@ export class UsersController {
     @Request() req,
     @Body() passwordData: { oldPassword: string; newPassword: string },
   ): Promise<Object> {
-    return this.usersService.changePassword(
+    return await this.usersService.changePassword(
       req.user.email,
       passwordData.oldPassword,
       passwordData.newPassword,
@@ -67,7 +67,7 @@ export class UsersController {
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return this.usersService.changeRole(req.user.email, username);
+    return await this.usersService.changeRole(req.user.email, username);
   }
 
   @Patch('editUsername')

@@ -67,6 +67,7 @@ export class TasksService {
     }
 
     task.pending = false;
+    task.isCompleted = false;
     task.username = wantedUserUsername;
 
     const existingTask = await db.query(aql`
