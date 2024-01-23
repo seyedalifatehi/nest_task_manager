@@ -58,7 +58,7 @@ export class UsersController {
 
   // this controller changes the role of a user based on his/her current user
   // if user's role is USER, it changrd to SUB_ADMIN
-  // and if user's role is SUB_ADMIN, it changrd to USER
+  // and if user's role is SUB_ADMIN, it changed to USER
   @Patch('changeRole/:username')
   @ApiOperation({
     summary: 'تغییر سمت یک کاربر',

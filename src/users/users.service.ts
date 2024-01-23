@@ -205,6 +205,17 @@ export class UsersService {
       );
     }
 
+    const existUser = await db.query(aql`
+      FOR u IN Users
+      FILTER u.username == ${newUsername}
+      LIMIT 1
+      RETURN u
+    `)[0];
+
+    if (existUser.next()) {
+      throw new ForbiddenException('this username exists')
+    }
+
     await this.updateUser(currentUser, {
       username: newUsername,
     });
@@ -212,9 +223,9 @@ export class UsersService {
     await db.query(aql`
       FOR taskId IN ${currentUser.userTaskIds}
         FOR task IN Tasks
-          FILTER task._id == taskId
-          LIMIT 1
-          UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
+        FILTER task._id == taskId
+        LIMIT 1
+        UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
     `);
 
     return {
@@ -232,6 +243,17 @@ export class UsersService {
       throw new ForbiddenException(
         'you cannot consider your current email as your new email',
       );
+    }
+
+    const existUser = await db.query(aql`
+      FOR u IN Users
+      FILTER u.email == ${newEmail}
+      LIMIT 1
+      RETURN u
+    `)[0];
+
+    if (existUser.next()) {
+      throw new ForbiddenException('this email exists')
     }
 
     const updatedUser = await this.updateUser(currentUser, { email: newEmail });
