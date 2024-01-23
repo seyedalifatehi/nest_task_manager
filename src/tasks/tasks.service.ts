@@ -148,24 +148,33 @@ export class TasksService {
       throw new ForbiddenException('only admin can accept tasks');
     }
 
+    if (!wantedTask.pending) {
+      throw new ForbiddenException('task should be marked as pending');
+    }
+
     if (wantedTask.isCompleted) {
       throw new ForbiddenException('this task is already accepted');
     }
     return await this.updateTask(wantedTask, { isCompleted: true });
   }
 
-  // this method make isConpleted property of tasks true
-  async markAsPendingTask(taskKey: string, currentUserEmail: string): Promise<any> {
+  // this method make pending property of tasks true
+  async markAsPendingTask(
+    taskKey: string,
+    currentUserEmail: string,
+  ): Promise<any> {
     const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if ((await currentUser).username !== wantedTask.username) {
-      throw new ForbiddenException('only admin can accept tasks');
+      throw new ForbiddenException(
+        'only the user that the task is defined for can make this task pending',
+      );
     }
 
     if (wantedTask.pending) {
       throw new ForbiddenException('this task is already marked as pending');
     }
-    return await this.updateTask(wantedTask, { isCompleted: true });
+    return await this.updateTask(wantedTask, { pending: true });
   }
 
   // this method returns a task by an Id
