@@ -210,7 +210,7 @@ export class UsersService {
       FILTER u.username == ${newUsername}
       LIMIT 1
       RETURN u
-    `)[0];
+    `);
 
     if (existUser.next()) {
       throw new ForbiddenException('this username exists')
@@ -250,13 +250,13 @@ export class UsersService {
       FILTER u.email == ${newEmail}
       LIMIT 1
       RETURN u
-    `)[0];
+    `);
 
     if (existUser.next()) {
       throw new ForbiddenException('this email exists')
     }
 
-    const updatedUser = await this.updateUser(currentUser, { email: newEmail });
+    await this.updateUser(currentUser, { email: newEmail });
     return {
       message: 'Your email has changed successfully!',
       yourOldEmail: oldEmail,

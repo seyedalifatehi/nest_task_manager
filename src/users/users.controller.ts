@@ -114,6 +114,19 @@ export class UsersController {
     };
   }
 
+  @Get('findByEmail/:email')
+  @ApiOperation({
+    summary: 'گرفتن یک کاربر بر اساس ایمیل اش',
+  })
+  async findOneUserByEmail(@Param('email') email: string): Promise<Object> {
+    const selectedUser = await this.usersService.findOneUserByEmail(email);
+    return {
+      username: selectedUser.username,
+      email: selectedUser.email,
+      role: selectedUser.role,
+    };
+  }
+
   @Delete(':username')
   @ApiOperation({
     summary: 'حذف کاربر',
