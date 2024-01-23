@@ -72,7 +72,7 @@ export class TasksService {
     const existingTask = await db.query(aql`
       LET existTask = (
         FOR t IN Tasks
-          FILTER t.username == ${task.username} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description}
+          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description}
           LIMIT 1
           RETURN t
       )
@@ -148,10 +148,24 @@ export class TasksService {
       throw new ForbiddenException('only admin can accept tasks');
     }
 
+    if (wantedTask.isCompleted) {
+      throw new ForbiddenException('this task is already accepted');
+    }
+    return await this.updateTask(wantedTask, { isCompleted: true });
+  }
+
+  // this method make isConpleted property of tasks true
+  async markAsPendingTask(taskKey: string, currentUserEmail: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    if ((await currentUser).username !== wantedTask.username) {
+      throw new ForbiddenException('only admin can accept tasks');
+    }
+
     if (wantedTask.pending) {
       throw new ForbiddenException('this task is already marked as pending');
     }
-    return await this.updateTask(wantedTask, { pending: true });
+    return await this.updateTask(wantedTask, { isCompleted: true });
   }
 
   // this method returns a task by an Id

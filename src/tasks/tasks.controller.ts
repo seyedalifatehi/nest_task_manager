@@ -89,7 +89,7 @@ export class TasksController {
   @ApiOperation({
     summary: 'علامت گذاری تسک به عنوان در حال بررسی',
   })
-  async acceptTask(@Param('taskKey') taskKey: string, @Request() req) {
+  async markAsPendingTask(@Param('taskKey') taskKey: string, @Request() req) {
     return await this.tasksService.acceptTask(taskKey, req.user.email);
   }
 
