@@ -84,9 +84,18 @@ export class TasksController {
     );
   }
 
+
+  @Patch('pendingTask/:taskKey')
+  @ApiOperation({
+    summary: 'علامت گذاری تسک به عنوان در حال بررسی',
+  })
+  async acceptTask(@Param('taskKey') taskKey: string, @Request() req) {
+    return await this.tasksService.acceptTask(taskKey, req.user.email);
+  }
+
   @Patch('acceptTask/:taskKey')
   @ApiOperation({
-    summary: 'تغییر توضیحات یک تسک',
+    summary: 'قبول کردن تسک',
   })
   async acceptTask(@Param('taskKey') taskKey: string, @Request() req) {
     return await this.tasksService.acceptTask(taskKey, req.user.email);

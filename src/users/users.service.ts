@@ -5,10 +5,7 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import {
-  InjectRepository,
-  ArangoRepository,
-} from 'nest-arango';
+import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
 
@@ -86,7 +83,7 @@ export class UsersService {
   // you can filter users by their role
   async findAllUsers(role?: 'USER' | 'SUB_ADMIN' | 'ADMIN'): Promise<any> {
     let users: string | any[];
-    
+
     if (role) {
       const usersQuery = await db.query(aql`
         FOR u IN Users
@@ -98,9 +95,14 @@ export class UsersService {
         }
       `);
 
-      users = await usersQuery.all()
-      
-      if ((users.length === 0) && role != 'USER' && role != 'SUB_ADMIN' && role != 'ADMIN') {
+      users = await usersQuery.all();
+
+      if (
+        users.length === 0 &&
+        role != 'USER' &&
+        role != 'SUB_ADMIN' &&
+        role != 'ADMIN'
+      ) {
         throw new NotFoundException('Role Not Found');
       }
 
@@ -116,7 +118,7 @@ export class UsersService {
       }
     `);
 
-    users = await allUsersQuery.all()
+    users = await allUsersQuery.all();
     return users;
   }
 

@@ -66,13 +66,13 @@ export class TasksService {
       );
     }
 
-    task.isCompleted = false;
+    task.pending = false;
     task.username = wantedUserUsername;
 
     const existingTask = await db.query(aql`
       LET existTask = (
         FOR t IN Tasks
-          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.title == ${task.title} && t.description == ${task.description}
+          FILTER t.username == ${task.username} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description}
           LIMIT 1
           RETURN t
       )
@@ -148,10 +148,10 @@ export class TasksService {
       throw new ForbiddenException('only admin can accept tasks');
     }
 
-    if (wantedTask.isCompleted) {
-      throw new ForbiddenException('this task is already accepted');
+    if (wantedTask.pending) {
+      throw new ForbiddenException('this task is already marked as pending');
     }
-    return await this.updateTask(wantedTask, { isCompleted: true });
+    return await this.updateTask(wantedTask, { pending: true });
   }
 
   // this method returns a task by an Id
