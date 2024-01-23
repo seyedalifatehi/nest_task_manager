@@ -1,9 +1,7 @@
 import {
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
-  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
@@ -39,13 +37,13 @@ export class UsersService {
 
     const query = await db.query(aql`
         LET emailExists = (
-            FOR u IN Users
+          FOR u IN Users
             FILTER u.email == ${user.email}
             RETURN u
         )
         
         LET usernameExists = (
-            FOR u IN Users
+          FOR u IN Users
             FILTER u.username == ${user.username}
             RETURN u
         )
@@ -54,19 +52,20 @@ export class UsersService {
         LET userWithUsernameExists = LENGTH(usernameExists) > 0
       
         LET createdUser = (
-            FILTER !userWithEmailExists && !userWithUsernameExists
-            INSERT {
-                "role": "USER",
-                "userTaskIds": ${[]},
-                "username": ${user.username},
-                "email": ${user.email},
-                "password": ${user.password}
-            } INTO Users
-            RETURN {
-                "username": ${user.username},
-                "email": ${user.email},
-                "message": 'User created successfully'
-            }
+          FILTER !userWithEmailExists && !userWithUsernameExists
+          INSERT {
+            "role": "USER",
+            "userTaskIds": ${[]},
+            "username": ${user.username},
+            "email": ${user.email},
+            "password": ${user.password}
+          } INTO Users
+          
+          RETURN {
+            "username": ${user.username},
+            "email": ${user.email},
+            "message": 'User created successfully'
+          }
         )
         
         RETURN LENGTH(createdUser) > 0 ? createdUser[0] : null
@@ -87,12 +86,12 @@ export class UsersService {
     if (role) {
       const usersQuery = await db.query(aql`
         FOR u IN Users
-        FILTER u.role == ${role} 
-        RETURN {
-          "username": u.username,
-          "email": u.email,
-          "role": u.role
-        }
+          FILTER u.role == ${role} 
+          RETURN {
+            "username": u.username,
+            "email": u.email,
+            "role": u.role
+          }
       `);
 
       users = await usersQuery.all();
@@ -111,11 +110,11 @@ export class UsersService {
 
     const allUsersQuery = await db.query(aql`
       FOR u IN Users
-      RETURN {
-        "username": u.username,
-        "email": u.email,
-        "role": u.role
-      }
+        RETURN {
+          "username": u.username,
+          "email": u.email,
+          "role": u.role
+        }
     `);
 
     users = await allUsersQuery.all();
@@ -183,7 +182,7 @@ export class UsersService {
       return this.decreaseRole(wantedUser);
     } else {
       if (wantedUser.role === 'USER') {
-        return this.increaseRole(wantedUser);
+        return await this.increaseRole(wantedUser);
       } else {
         throw new ForbiddenException(
           'you cannot change your role because you are admin',
@@ -207,13 +206,13 @@ export class UsersService {
 
     const existUser = await db.query(aql`
       FOR u IN Users
-      FILTER u.username == ${newUsername}
-      LIMIT 1
-      RETURN u
+        FILTER u.username == ${newUsername}
+        LIMIT 1
+        RETURN u
     `);
 
     if (existUser.next()) {
-      throw new ForbiddenException('this username exists')
+      throw new ForbiddenException('this username exists');
     }
 
     await this.updateUser(currentUser, {
@@ -223,9 +222,9 @@ export class UsersService {
     await db.query(aql`
       FOR taskId IN ${currentUser.userTaskIds}
         FOR task IN Tasks
-        FILTER task._id == taskId
-        LIMIT 1
-        UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
+          FILTER task._id == taskId
+          LIMIT 1
+          UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
     `);
 
     return {
@@ -247,13 +246,13 @@ export class UsersService {
 
     const existUser = await db.query(aql`
       FOR u IN Users
-      FILTER u.email == ${newEmail}
-      LIMIT 1
-      RETURN u
+        FILTER u.email == ${newEmail}
+        LIMIT 1
+        RETURN u
     `);
 
     if (existUser.next()) {
-      throw new ForbiddenException('this email exists')
+      throw new ForbiddenException('this email exists');
     }
 
     await this.updateUser(currentUser, { email: newEmail });

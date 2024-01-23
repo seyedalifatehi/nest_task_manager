@@ -217,8 +217,10 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (!this.usersService.userAccessHandleError(currentUser, wantedUser)) {
-      throw new ForbiddenException('you are not allowed to edit this task');
+    if (! await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+      throw new ForbiddenException(
+        'you are not allowed to change the title of this task',
+      );
     }
 
     if (wantedTask.title === newTitle) {
@@ -244,9 +246,9 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (!this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (! await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
       throw new ForbiddenException(
-        'you are not allowed to change the properties of this task',
+        'you are not allowed to change the description of this task',
       );
     }
 

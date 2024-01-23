@@ -84,10 +84,9 @@ export class TasksController {
     );
   }
 
-
   @Patch('pendingTask/:taskKey')
   @ApiOperation({
-    summary: 'علامت گذاری تسک به عنوان در حال بررسی',
+    summary: 'علامت گذاری تسک به عنوان در حال بررسی توسط ادمین',
   })
   async markAsPendingTask(@Param('taskKey') taskKey: string, @Request() req) {
     return await this.tasksService.acceptTask(taskKey, req.user.email);
