@@ -5,12 +5,7 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import {
-  ArangoNewOldResult,
-  ArangoRepository,
-  InjectRepository,
-  ResultList,
-} from 'nest-arango';
+import { ArangoRepository, InjectRepository, ResultList } from 'nest-arango';
 import { TaskEntity } from './entities/task.entity';
 import { UsersService } from 'src/users/users.service';
 import { aql, Database } from 'arangojs';
@@ -217,7 +212,9 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (! await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
       throw new ForbiddenException(
         'you are not allowed to change the title of this task',
       );
@@ -246,7 +243,9 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (! await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
       throw new ForbiddenException(
         'you are not allowed to change the description of this task',
       );
@@ -277,7 +276,7 @@ export class TasksService {
     if (!userTasks) {
       throw new ForbiddenException('ther is no task for showing');
     }
-    return userTasks.all();
+    return await userTasks.all();
   }
 
   // this method shows the tasks of the desired in user
@@ -290,29 +289,25 @@ export class TasksService {
     const wantedUser =
       await this.usersService.findOneUserByUsername(desiredUserUsername);
 
-    if (!this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
       throw new ForbiddenException(
         'you are not allowed to see the tasks of this user',
       );
     }
 
-    const userTasks = await db.query(aql`
-      LET user = (
-        FOR u IN Users
-          FILTER u.username == ${desiredUserUsername}
-          RETURN u
-      )[0]
-      
-      FILTER user && user.userTaskIds
-      FOR taskId IN user.userTaskIds
-        LET task = DOCUMENT(Tasks, taskId)
-        RETURN task
-    `);
-
-    if (!userTasks) {
-      throw new ForbiddenException('ther is no task for showing');
+    const tasks = [];
+    for (let i = 0; i < wantedUser.userTaskIds.length; i++) {
+      tasks.push(await this.findOneTaskById(wantedUser.userTaskIds[i]));
     }
-    return await userTasks.all();
+
+    console.log(tasks);
+    if (tasks.length === 0) {
+      throw new ForbiddenException('there is no task for showing');
+    }
+
+    return tasks;
   }
 
   // this method removes a task
