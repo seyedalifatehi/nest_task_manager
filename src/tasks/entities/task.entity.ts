@@ -1,7 +1,7 @@
 export class Task {}
 import { Collection, ArangoDocument } from 'nest-arango';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsString, IsBoolean, IsDate } from 'class-validator';
 
 @Collection('Tasks')
 export class TaskEntity extends ArangoDocument {
@@ -25,4 +25,8 @@ export class TaskEntity extends ArangoDocument {
   @IsBoolean()
   @ApiProperty({ description: 'isCompleted', example: 'true' })
   isCompleted: boolean;
+
+  @IsDate()
+  @ApiProperty({ description: 'the date of the task', example: '' })
+  date: Date;
 }
