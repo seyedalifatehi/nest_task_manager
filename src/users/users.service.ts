@@ -296,7 +296,7 @@ export class UsersService {
     return foundUser;
   }
 
-  // this mehod is used for edit a user account
+  // this method is used for edit a user account
   async updateUser(
     user: UserEntity,
     updatedUser: Partial<UserEntity>,

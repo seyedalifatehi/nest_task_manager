@@ -313,7 +313,12 @@ export class TasksService {
   // this method removes a task
   async removeTask(_id: string, email: string): Promise<Object> {
     const currentUser = await this.usersService.findOneUserByEmail(email);
+
     const wantedTask = await this.findOneTaskById(_id);
+    if (!wantedTask) {
+      throw new NotFoundException('task id not found');
+    }
+
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
@@ -324,11 +329,9 @@ export class TasksService {
     }
 
     await this.taskRepository.removeBy({ _id });
-    await db.query(aql`
-      FOR taskId IN ${wantedUser.userTaskIds}
-        FILTER taskId == ${_id}
-        REMOVE taskId IN ${wantedUser.userTaskIds}
-    `);
+    const taskIdsArray = wantedUser.userTaskIds;
+    taskIdsArray.splice(taskIdsArray.indexOf(_id), 1);
+    this.usersService.updateUser(wantedUser, { userTaskIds: taskIdsArray });
 
     return {
       message: 'task deleted successfully',
