@@ -38,6 +38,18 @@ export class TasksService {
     wantedUserUsername: string,
     currentUserEmail: string,
   ): Promise<TaskEntity> {
+    // Import the jalali-moment library
+    const moment = require('jalali-moment');
+
+    // Create a Jalali (Shamsi) date object
+    const shamsiDate = moment();
+    shamsiDate.locale('fa');
+
+    // Format the Shamsi date as a string (e.g., '1403-11-04')
+    const formattedShamsiDate = shamsiDate.format('YYYY-MM-DD');
+
+    console.log(formattedShamsiDate);
+
     const currentUser =
       await this.usersService.findOneUserByEmail(currentUserEmail);
     console.log(currentUser);
@@ -64,6 +76,7 @@ export class TasksService {
     task.pending = false;
     task.isCompleted = false;
     task.username = wantedUserUsername;
+    task.defineDate = formattedShamsiDate;
 
     const existingTask = await db.query(aql`
       LET existTask = (
