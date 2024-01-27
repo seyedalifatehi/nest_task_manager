@@ -343,7 +343,7 @@ export class UsersService {
   // sub admins and user and sub admin have access to all the features of users
   async userAccessHandleError(currentUser: UserEntity, wantedUser: UserEntity) {
     if (currentUser.role !== 'ADMIN') {
-      if (currentUser.role !== 'SUB_ADMIN' || wantedUser.role !== 'USER') {
+      if (!(wantedUser.role === 'USER' && currentUser.role === 'SUB_ADMIN')) {
         return false;
       }
     }

@@ -38,16 +38,22 @@ export class TasksService {
     wantedUserUsername: string,
     currentUserEmail: string,
   ): Promise<TaskEntity> {
+    const date = new Date();
+
     // Import the jalali-moment library
     const moment = require('jalali-moment');
 
+    console.log(date.toLocaleString('fa-IR'));
+    console.log(date);
+    console.log(date.getUTCDate().toLocaleString('fa-IR') == '27');
+
     // Create a Jalali (Shamsi) date object
     const shamsiDate = moment();
+    // Locating date
     shamsiDate.locale('fa');
 
     // Format the Shamsi date as a string (e.g., '1403-11-04')
     const formattedShamsiDate = shamsiDate.format('YYYY-MM-DD');
-
     console.log(formattedShamsiDate);
 
     const currentUser =
@@ -73,15 +79,21 @@ export class TasksService {
       );
     }
 
+    if (date > new Date(task.deadlineDate)) {
+      throw new ForbiddenException(
+        'the deadline should not be less than today!',
+      );
+    }
+
     task.pending = false;
     task.isCompleted = false;
     task.username = wantedUserUsername;
-    task.defineDate = formattedShamsiDate;
+    task.defineDate = date;
 
     const existingTask = await db.query(aql`
       LET existTask = (
         FOR t IN Tasks
-          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description}
+          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description} && t.deadlineDate == ${task.deadlineDate}
           LIMIT 1
           RETURN t
       )
@@ -177,6 +189,12 @@ export class TasksService {
     if ((await currentUser).username !== wantedTask.username) {
       throw new ForbiddenException(
         'only the user that the task is defined for can make this task pending',
+      );
+    }
+
+    if (new Date() > new Date(wantedTask.deadlineDate)) {
+      throw new ForbiddenException(
+        'the outdated task cannot be marked as pending',
       );
     }
 
