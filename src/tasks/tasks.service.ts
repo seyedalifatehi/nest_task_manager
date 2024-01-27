@@ -251,6 +251,12 @@ export class TasksService {
       );
     }
 
+    if (new Date() > new Date(wantedTask.deadlineDate)) {
+      throw new ForbiddenException(
+        'the outdated task cannot be marked as pending',
+      );
+    }
+
     if (wantedTask.title === newTitle) {
       throw new ForbiddenException("this is this task's current title");
     }
@@ -279,6 +285,12 @@ export class TasksService {
     ) {
       throw new ForbiddenException(
         'you are not allowed to change the description of this task',
+      );
+    }
+
+    if (new Date() > new Date(wantedTask.deadlineDate)) {
+      throw new ForbiddenException(
+        'the outdated task cannot be marked as pending',
       );
     }
 
