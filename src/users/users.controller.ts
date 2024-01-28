@@ -9,12 +9,24 @@ import {
   Query,
   UseGuards,
   Request,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ResultList } from 'nest-arango';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -96,6 +108,32 @@ export class UsersController {
       req.user.email,
       newEmailData.newEmail,
     );
+  }
+
+  @Post('uploadProfilePhoto')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'اپلود عکس پروفایل',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async uploadProfilePhoto(@UploadedFile() image: Express.Multer.File) {
+    const imageId = uuidv4();
+    const folderPath: string = './images/profiles/';
+    const imageBuffer = image.buffer;
+    const imagePath = path.join(folderPath, `${imageId}.jpg`);
+    await fs.writeFile(imagePath, imageBuffer);
+    return await imageId;
   }
 
   @Get('findByUsername/:username')
