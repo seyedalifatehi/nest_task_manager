@@ -27,4 +27,8 @@ export class UserEntity extends ArangoDocument {
 
   @ApiProperty({ description: 'the ids of task', example: '[task id]' })
   userTaskIds: string[];
+
+  
+  @ApiProperty({ description: 'the path of the users profile photo', example: 'example.jpg' })
+  userProfilePhotoPath: string;
 }
