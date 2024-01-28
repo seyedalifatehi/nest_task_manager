@@ -35,7 +35,6 @@ export class TasksService {
   // sub admin defines tasks for users
   async defineTask(
     task: TaskEntity,
-    wantedUserUsername: string,
     currentUserEmail: string,
   ): Promise<TaskEntity> {
     const date = new Date();
@@ -60,8 +59,9 @@ export class TasksService {
       await this.usersService.findOneUserByEmail(currentUserEmail);
     console.log(currentUser);
 
-    const wantedUser =
-      await this.usersService.findOneUserByUsername(wantedUserUsername);
+    const wantedUser = await this.usersService.findOneUserByUsername(
+      task.username,
+    );
     console.log(wantedUser);
 
     if (
@@ -87,7 +87,6 @@ export class TasksService {
 
     task.pending = false;
     task.isCompleted = false;
-    task.username = wantedUserUsername;
     task.defineDate = date;
 
     const existingTask = await db.query(aql`

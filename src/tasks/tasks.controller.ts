@@ -8,11 +8,13 @@ import {
   Delete,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -22,20 +24,37 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
+  @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({
     summary: 'تعریف کردن تسک',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+        },
+        description: {
+          type: 'string',
+        },
+        deadlineDate: {
+          type: 'string',
+        },
+        username: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async defineTask(
+    @Body() task: TaskEntity,
     @Request() req,
-    @Body() taskData: { task: TaskEntity; username: string },
   ): Promise<TaskEntity> {
-    return await this.tasksService.defineTask(
-      taskData.task,
-      taskData.username,
-      req.user.email,
-    );
+    return await this.tasksService.defineTask(task, req.user.email);
   }
 
+  // ساب ادمین به زیر ادمین تغییر پیدا کند
   @Get('subAdmins')
   @ApiOperation({
     summary: 'نشان دادن تسک های ساب ادمین ها',
