@@ -141,6 +141,21 @@ export class TasksController {
     );
   }
 
+  @Get('showTasksInDateRange')
+  @ApiOperation({
+    summary: 'نشان دادن تسک هایی که مهلت تحویلشان در یک بازه تاریخ مشخص شده هستند',
+  })
+  async showTasksInDateRange(
+    @Body() dateRange: { fromDate: Date; toDate: Date },
+    @Request() req,
+  ) {
+    return await this.tasksService.showTasksInDateRange(
+      dateRange.fromDate,
+      dateRange.toDate,
+      req.user.email,
+    );
+  }
+
   @Delete(':taskKey')
   @ApiOperation({
     summary: 'حذف کردن تسک',

@@ -203,6 +203,36 @@ export class TasksService {
     return await this.updateTask(wantedTask, { pending: true });
   }
 
+  // this method returns all tasks that their deadline date are between a date range
+  async showTasksInDateRange(
+    fromDate: Date,
+    toDate: Date,
+    currentUserEmail: string,
+  ): Promise<any> {
+    const currentUser =
+      await this.usersService.findOneUserByEmail(currentUserEmail);
+    if (currentUser.role === 'USER') {
+      throw new ForbiddenException('you can see only your tasks');
+    }
+
+    if (currentUser.role === 'SUB_ADMIN') {
+      const query = await db.query(aql`
+        FOR t IN Tasks
+          FOR u IN Users
+            FILTER t.username == u.username && u.role == 'USER' && t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate}
+            RETURN t
+      `);
+      return await query.all();
+    }
+
+    const query = await db.query(aql`
+      FOR t IN Tasks
+        FILTER t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate}
+        RETURN t
+    `);
+    return await query.all();
+  }
+
   // this method returns a task by an Id
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
     return await this.taskRepository.findOneBy({ _id });
