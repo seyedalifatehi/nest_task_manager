@@ -110,6 +110,7 @@ export class UsersController {
     );
   }
 
+  // this method uploads current users profile photo
   @Post('uploadProfilePhoto')
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
@@ -131,7 +132,17 @@ export class UsersController {
     @UploadedFile() image: Express.Multer.File,
     @Request() req,
   ) {
-    return await this.usersService.uploadProfilePhoto(req.user.email, image);
+    const currentUser = await this.usersService.findOneUserByEmail(req.user.email);
+
+    const imageId = await uuidv4();
+    const folderPath: string = './images/profiles/';
+    const imageBuffer = image.buffer;
+    const imagePath = path.join(folderPath, `${currentUser.username}.jpg`);
+    await fs.writeFile(imagePath, imageBuffer);
+
+    currentUser.userProfilePhotoPath = imagePath;
+    await this.usersService.updateUser(currentUser, currentUser);
+    return await imageId;
   }
 
   @Get('findByUsername/:username')
