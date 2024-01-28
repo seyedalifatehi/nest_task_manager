@@ -131,16 +131,7 @@ export class UsersController {
     @UploadedFile() image: Express.Multer.File,
     @Request() req,
   ) {
-    const currentUser = await this.usersService.findOneUserByEmail(
-      req.user.email,
-    );
-
-    const imageId = uuidv4();
-    const folderPath: string = './images/profiles/';
-    const imageBuffer = image.buffer;
-    const imagePath = path.join(folderPath, `${currentUser.username}.jpg`);
-    await fs.writeFile(imagePath, imageBuffer);
-    return await imageId;
+    return await this.usersService.uploadProfilePhoto(req.user.email, image);
   }
 
   @Get('findByUsername/:username')

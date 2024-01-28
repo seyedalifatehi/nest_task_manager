@@ -6,6 +6,11 @@ import {
 import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -58,7 +63,8 @@ export class UsersService {
             "userTaskIds": ${[]},
             "username": ${user.username},
             "email": ${user.email},
-            "password": ${user.password}
+            "password": ${user.password},
+            "userProfilePhotoPath": ${''}
           } INTO Users
           
           RETURN {
@@ -261,6 +267,24 @@ export class UsersService {
       yourOldEmail: oldEmail,
       yourNewEmail: newEmail,
     };
+  }
+
+  // this method uploads current users profile photo
+  async uploadProfilePhoto(
+    currentUserEmail: string,
+    image: Express.Multer.File,
+  ): Promise<UserEntity | null> {
+    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+
+    const imageId = uuidv4();
+    const folderPath: string = './images/profiles/';
+    const imageBuffer = image.buffer;
+    const imagePath = path.join(folderPath, `${currentUser.username}.jpg`);
+    await fs.writeFile(imagePath, imageBuffer);
+
+    currentUser.userProfilePhotoPath = imagePath;
+    await this.updateUser(currentUser, currentUser);
+    return await imageId;
   }
 
   // this method finds a user account based on its email
