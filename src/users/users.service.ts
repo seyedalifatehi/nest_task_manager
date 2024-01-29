@@ -32,9 +32,9 @@ export class UsersService {
   // only admin can add users
   async createUser(
     user: UserEntity,
-    currentUserEmail: string,
+    currentUserId: string,
   ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    const currentUser = await this.findOneUserById(currentUserId);
 
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can add new user!');

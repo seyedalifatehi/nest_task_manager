@@ -62,7 +62,7 @@ export class UsersController {
     },
   })
   async createUser(@Body() user: UserEntity, @Request() req): Promise<Object> {
-    return await this.usersService.createUser(user, req.user.email);
+    return await this.usersService.createUser(user, req.user._id);
   }
 
   @Get()
