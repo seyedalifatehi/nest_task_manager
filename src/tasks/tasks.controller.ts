@@ -100,6 +100,16 @@ export class TasksController {
   @ApiOperation({
     summary: 'تغییر توضیحات یک تسک',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newDescription: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async changeDescription(
     @Param('taskKey') taskKey: string,
     @Body() newDescriptionData: { newDescription: string },
