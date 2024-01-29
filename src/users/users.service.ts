@@ -129,11 +129,11 @@ export class UsersService {
 
   // user can change his/her password here
   async changePassword(
-    currentUserEmail: string,
+    currentUserId: string,
     oldPassword: string,
     newPassword: string,
   ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    const currentUser = await this.findOneUserById(currentUserId);
 
     if (currentUser.password !== oldPassword) {
       throw new ForbiddenException(

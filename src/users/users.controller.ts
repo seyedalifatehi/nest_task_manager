@@ -102,7 +102,7 @@ export class UsersController {
     @Body() passwordData: { oldPassword: string; newPassword: string },
   ): Promise<Object> {
     return await this.usersService.changePassword(
-      req.user.email,
+      req.user._id,
       passwordData.oldPassword,
       passwordData.newPassword,
     );
