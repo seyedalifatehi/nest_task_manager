@@ -217,7 +217,10 @@ export class UsersController {
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
 
-    return await imageId;
+    return {
+      imageId: await imageId,
+      message: 'photo uploaded successfully',
+    };
   }
 
   @Get('findByUsername/:username')
