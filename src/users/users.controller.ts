@@ -73,6 +73,19 @@ export class UsersController {
   @ApiOperation({
     summary: 'تغییر رمز کاربر',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        oldPassword: {
+          type: 'string',
+        },
+        newPassword: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async changePassword(
     @Request() req,
     @Body() passwordData: { oldPassword: string; newPassword: string },
