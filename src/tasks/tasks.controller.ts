@@ -74,6 +74,16 @@ export class TasksController {
   @ApiOperation({
     summary: 'تغییر عنوان یک تسک',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newTitle: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async changeTitle(
     @Param('taskKey') taskKey: string,
     @Body() newTitleData: { newTitle: string },
@@ -142,7 +152,8 @@ export class TasksController {
 
   @Get('showTasksInDateRange')
   @ApiOperation({
-    summary: 'نشان دادن تسک هایی که مهلت تحویلشان در یک بازه تاریخ مشخص شده هستند',
+    summary:
+      'نشان دادن تسک هایی که مهلت تحویلشان در یک بازه تاریخ مشخص شده هستند',
   })
   async showTasksInDateRange(
     @Body() dateRange: { fromDate: Date; toDate: Date },
