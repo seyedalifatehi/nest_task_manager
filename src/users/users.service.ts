@@ -271,7 +271,14 @@ export class UsersService {
 
   // this method finds a user account based on its email
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
-    const foundUser = await this.userRepository.findOneBy({ email });
+    const findQuery = await db.query(aql`
+    FOR u IN Users
+      FILTER u.email == ${email}
+      RETURN u
+  `)
+
+  const foundUser = await findQuery.next()
+
 
     if (!foundUser) {
       throw new NotFoundException('Email Not Found');
@@ -282,7 +289,13 @@ export class UsersService {
 
   // this method finds a user account based on its username
   async findOneUserByUsername(username: string): Promise<UserEntity | null> {
-    const foundUser = await this.userRepository.findOneBy({ username });
+    const findQuery = await db.query(aql`
+      FOR u IN Users
+        FILTER u.username == ${username}
+        RETURN u
+    `)
+
+    const foundUser = await findQuery.next()
 
     if (!foundUser) {
       throw new NotFoundException('Username Not Found');

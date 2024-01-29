@@ -156,6 +156,7 @@ export class UsersController {
       properties: {
         newEmail: {
           type: 'string',
+          format: 'email',
         },
       },
     },
