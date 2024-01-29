@@ -20,6 +20,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { v4 as uuidv4 } from 'uuid';
@@ -62,6 +63,11 @@ export class UsersController {
   @Get()
   @ApiOperation({
     summary: 'گرفتن تمامی کاربران',
+  })
+  @ApiQuery({
+    name: 'role',
+    required: false,
+    enum: ['USER', 'SUB_ADMIN', 'ADMIN'],
   })
   async findAllUsers(
     @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
