@@ -19,9 +19,9 @@ export class UserEntity extends ArangoDocument {
   @ApiProperty({ description: 'email', example: 'example@example.com' })
   email: string;
 
-  @IsEnum(['ADMIN', 'SUB_ADMIN', 'USER'], {
-    message: 'The entered role is not valid',
-  })
+  // @IsEnum(['ADMIN', 'SUB_ADMIN', 'USER'], {
+  //   message: 'The entered role is not valid',
+  // })
   @ApiProperty({ description: 'role', example: 'ADMIN' })
   role?: 'ADMIN' | 'SUB_ADMIN' | 'USER';
 
