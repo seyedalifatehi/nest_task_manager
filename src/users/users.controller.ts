@@ -11,6 +11,9 @@ import {
   Request,
   UploadedFile,
   UseInterceptors,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
@@ -184,7 +187,15 @@ export class UsersController {
     },
   })
   async uploadProfilePhoto(
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2097152 }),
+          new FileTypeValidator({ fileType: 'image/jpeg' }),
+        ],
+      }),
+    )
+    image: Express.Multer.File,
     @Request() req,
   ) {
     const currentUser = await this.usersService.findOneUserByEmail(
@@ -194,12 +205,12 @@ export class UsersController {
     const imageId = await uuidv4();
     const folderPath: string = './images/profiles/';
     const imageBuffer = image.buffer;
-    const imagePath = path.join(folderPath, `${currentUser.username}.jpg`);
+    const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
     await fs.writeFile(imagePath, imageBuffer);
 
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
-    
+
     return await imageId;
   }
 
