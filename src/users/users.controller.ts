@@ -187,7 +187,9 @@ export class UsersController {
     @UploadedFile() image: Express.Multer.File,
     @Request() req,
   ) {
-    const currentUser = await this.usersService.findOneUserByEmail(req.user.email);
+    const currentUser = await this.usersService.findOneUserByEmail(
+      req.user.email,
+    );
 
     const imageId = await uuidv4();
     const folderPath: string = './images/profiles/';
@@ -197,6 +199,7 @@ export class UsersController {
 
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
+    
     return await imageId;
   }
 
