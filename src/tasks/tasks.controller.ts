@@ -54,10 +54,9 @@ export class TasksController {
     return await this.tasksService.defineTask(task, req.user.email);
   }
 
-  // ساب ادمین به زیر ادمین تغییر پیدا کند
   @Get('subAdmins')
   @ApiOperation({
-    summary: 'نشان دادن تسک های ساب ادمین ها',
+    summary: 'نشان دادن تسک های دستیاران ادمین',
   })
   async showTasksOfSubAdmins(@Request() req): Promise<any> {
     return await this.tasksService.showTasksOfSubAdmins(req.user.email);
