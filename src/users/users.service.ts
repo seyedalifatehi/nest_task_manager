@@ -144,7 +144,7 @@ export class UsersService {
     if (newPassword === oldPassword) {
       throw new ForbiddenException('This is your current password.');
     }
-    this.updateUser(currentUser, { password: newPassword });
+    await this.updateUser(currentUser, { password: newPassword });
 
     return {
       message: 'password changed successfully',
@@ -268,7 +268,7 @@ export class UsersService {
       yourNewEmail: newEmail,
     };
   }
-  
+
   // this method finds a user account based on its email
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
     const foundUser = await this.userRepository.findOneBy({ email });
