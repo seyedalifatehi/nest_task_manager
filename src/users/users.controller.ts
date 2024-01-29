@@ -47,6 +47,22 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن تمامی کاربران',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+        },
+        password: {
+          type: 'string',
+        },
+        email: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async findAllUsers(
     @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
   ): Promise<any> {
