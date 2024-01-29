@@ -39,14 +39,6 @@ export class UsersController {
   @ApiOperation({
     summary: 'ثبتنام کاربر توسط ادمین',
   })
-  async createUser(@Body() user: UserEntity, @Request() req): Promise<Object> {
-    return await this.usersService.createUser(user, req.user.email);
-  }
-
-  @Get()
-  @ApiOperation({
-    summary: 'گرفتن تمامی کاربران',
-  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -62,6 +54,14 @@ export class UsersController {
         },
       },
     },
+  })
+  async createUser(@Body() user: UserEntity, @Request() req): Promise<Object> {
+    return await this.usersService.createUser(user, req.user.email);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'گرفتن تمامی کاربران',
   })
   async findAllUsers(
     @Query('role') role?: 'USER' | 'SUB_ADMIN' | 'ADMIN',
