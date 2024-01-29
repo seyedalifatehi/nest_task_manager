@@ -139,6 +139,16 @@ export class UsersController {
   @ApiOperation({
     summary: 'تغییر ایمیل کاربر کنونی',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newEmail: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async editEmail(
     @Request() req,
     @Body() newEmailData: { newEmail: string },
