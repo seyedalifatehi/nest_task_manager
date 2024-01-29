@@ -115,6 +115,16 @@ export class UsersController {
   @ApiOperation({
     summary: 'تغییر نام کاربری کاربر کنونی',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newUsername: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async editUsername(
     @Request() req,
     @Body() newUsernameData: { newUsername: string },
