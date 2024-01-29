@@ -217,7 +217,7 @@ export class UsersService {
         RETURN u
     `);
 
-    if (existUser.next()) {
+    if (await existUser.next()) {
       throw new ForbiddenException('this username exists');
     }
 
@@ -257,7 +257,7 @@ export class UsersService {
         RETURN u
     `);
 
-    if (existUser.next()) {
+    if (await existUser.next()) {
       throw new ForbiddenException('this email exists');
     }
 
