@@ -32,10 +32,11 @@ export class TaskEntity extends ArangoDocument {
   defineDate: Date;
 
   // deadline date and time
+  @IsNotEmpty()
+  @IsDateString()
   @ApiProperty({
     description: 'the deadline date of the task',
     example: new Date('2023-12-31T00:00:00'),
   })
-  @IsDateString()
   deadlineDate: Date;
 }
