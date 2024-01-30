@@ -1,6 +1,6 @@
 import { Collection, ArangoDocument } from 'nest-arango';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 
 @Collection('Users')
 export class UserEntity extends ArangoDocument {
@@ -11,6 +11,7 @@ export class UserEntity extends ArangoDocument {
 
   @IsNotEmpty()
   @IsString()
+  @IsStrongPassword()
   @ApiProperty({ description: 'password', example: 'john_doe' })
   password: string;
 
