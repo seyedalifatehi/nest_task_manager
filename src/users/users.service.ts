@@ -38,23 +38,16 @@ export class UsersService {
     }
 
     const query = await db.query(aql`
-        LET emailExists = (
+        LET existUser = (
           FOR u IN Users
-            FILTER u.email == ${user.email}
+            FILTER u.email == ${user.email} || u.username == ${user.username}
             RETURN u
         )
         
-        LET usernameExists = (
-          FOR u IN Users
-            FILTER u.username == ${user.username}
-            RETURN u
-        )
-        
-        LET userWithEmailExists = LENGTH(emailExists) > 0
-        LET userWithUsernameExists = LENGTH(usernameExists) > 0
+        LET isUserExist = LENGTH(existUser) > 0
       
         LET createdUser = (
-          FILTER !userWithEmailExists && !userWithUsernameExists
+          FILTER !isUserExist
           INSERT {
             "role": "USER",
             "userTaskIds": ${[]},
@@ -75,10 +68,10 @@ export class UsersService {
       `);
     const createdUser = await query.next();
 
-    if (!createdUser) {
+    if (!(await createdUser)) {
       throw new ForbiddenException('this username or email already exists');
     }
-    return createdUser;
+    return await createdUser;
   }
 
   // this method shows all of the users
