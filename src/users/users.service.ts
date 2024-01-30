@@ -331,9 +331,9 @@ export class UsersService {
   // admin can remove a user with this method
   async removeUser(
     username: string,
-    currentUserEmail: string,
+    currentUserId: string,
   ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
     }

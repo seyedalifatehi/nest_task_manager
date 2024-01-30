@@ -261,6 +261,6 @@ export class UsersController {
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return await this.usersService.removeUser(username, req.user.email);
+    return await this.usersService.removeUser(username, req.user._id);
   }
 }
