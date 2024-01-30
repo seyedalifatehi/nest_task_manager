@@ -205,9 +205,9 @@ export class UsersController {
     image: Express.Multer.File,
     @Request() req,
   ) {
-    const currentUser = await this.usersService.findOneUserByEmail(
-      req.user.email,
-    );
+    const currentUser = await this.usersService.findOneUserById(
+      req.user._id,
+    )
 
     const imageId = await uuidv4();
     const folderPath: string = './images/profiles/';
