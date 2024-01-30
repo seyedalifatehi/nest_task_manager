@@ -68,7 +68,7 @@ export class UsersController {
 
   @Get()
   @ApiOperation({
-    summary: 'گرفتن تمامی کاربران',
+    summary: 'گرفتن تمامی کاربران یا گرفتن کاربران براساس سمتشان',
   })
   @ApiQuery({
     name: 'role',
