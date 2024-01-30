@@ -119,7 +119,7 @@ export class UsersController {
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return await this.usersService.changeRole(req.user.email, username);
+    return await this.usersService.changeRole(req.user._id, username);
   }
 
   @Patch('editUsername')

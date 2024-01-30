@@ -171,10 +171,10 @@ export class UsersService {
 
   // this method changes the role of a user based on his/her current user
   async changeRole(
-    currentUserEmail: string,
+    currentUserId: string,
     selectedUserUsername: string,
   ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can change users roles');
     }
