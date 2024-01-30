@@ -35,6 +35,7 @@ import * as fs from 'fs/promises';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { PasswordDataDto } from './dto/password-data.dto';
+import { NewEmailDataDto } from './dto/new-email-data.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -165,11 +166,11 @@ export class UsersController {
   })
   async editEmail(
     @Request() req,
-    @Body() newEmailData: { newEmail: string },
+    @Body() newEmailDataDto: NewEmailDataDto,
   ): Promise<Object> {
     return await this.usersService.editEmail(
       req.user._id,
-      newEmailData.newEmail,
+      newEmailDataDto.newEmail,
     );
   }
 
