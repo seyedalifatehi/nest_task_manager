@@ -141,7 +141,7 @@ export class UsersController {
     @Body() newUsernameData: { newUsername: string },
   ): Promise<Object> {
     return await this.usersService.editUsername(
-      req.user.email,
+      req.user._id,
       newUsernameData.newUsername,
     );
   }
@@ -166,7 +166,7 @@ export class UsersController {
     @Body() newEmailData: { newEmail: string },
   ): Promise<Object> {
     return await this.usersService.editEmail(
-      req.user.email,
+      req.user._id,
       newEmailData.newEmail,
     );
   }

@@ -199,10 +199,10 @@ export class UsersService {
 
   // this method changes the username of current user account
   async editUsername(
-    currentUserEmail: string,
+    currentUserId: string,
     newUsername: string,
   ): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+    const currentUser = await this.findOneUserById(currentUserId);
     const oldUsername = currentUser.username;
     if (newUsername === oldUsername) {
       throw new ForbiddenException(
@@ -241,8 +241,8 @@ export class UsersService {
   }
 
   // this method changes the email of current user account
-  async editEmail(currentUserEmail: string, newEmail: string): Promise<Object> {
-    const currentUser = await this.findOneUserByEmail(currentUserEmail);
+  async editEmail(currentUserId: string, newEmail: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
     const oldEmail = currentUser.email;
     if (newEmail === oldEmail) {
       throw new ForbiddenException(
