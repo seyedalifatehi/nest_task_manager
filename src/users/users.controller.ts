@@ -34,6 +34,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { PasswordDataDto } from './dto/password-data.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -94,19 +95,18 @@ export class UsersController {
         },
         newPassword: {
           type: 'string',
-          format: ''
         },
       },
     },
   })
   async changePassword(
     @Request() req,
-    @Body() passwordData: { oldPassword: string; newPassword: string },
+    @Body() passwordDataDto: PasswordDataDto,
   ): Promise<Object> {
     return await this.usersService.changePassword(
       req.user._id,
-      passwordData.oldPassword,
-      passwordData.newPassword,
+      passwordDataDto.oldPassword,
+      passwordDataDto.newPassword,
     );
   }
 
@@ -207,9 +207,7 @@ export class UsersController {
     image: Express.Multer.File,
     @Request() req,
   ) {
-    const currentUser = await this.usersService.findOneUserById(
-      req.user._id,
-    )
+    const currentUser = await this.usersService.findOneUserById(req.user._id);
 
     const imageId = await uuidv4();
     const folderPath: string = './images/profiles/';
@@ -251,7 +249,7 @@ export class UsersController {
     if (!selectedUser) {
       throw new NotFoundException('Email Not Found');
     }
-    
+
     return {
       username: selectedUser.username,
       email: selectedUser.email,
