@@ -94,6 +94,7 @@ export class UsersController {
         },
         newPassword: {
           type: 'string',
+          format: ''
         },
       },
     },
