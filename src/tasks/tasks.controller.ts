@@ -127,7 +127,7 @@ export class TasksController {
     summary: 'علامت گذاری تسک به عنوان در حال بررسی توسط ادمین',
   })
   async markAsPendingTask(@Param('taskKey') taskKey: string, @Request() req) {
-    return await this.tasksService.acceptTask(taskKey, req.user._id);
+    return await this.tasksService.markAsPendingTask(taskKey, req.user._id);
   }
 
   @Patch('acceptTask/:taskKey')
