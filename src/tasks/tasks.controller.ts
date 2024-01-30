@@ -51,7 +51,7 @@ export class TasksController {
     @Body() task: TaskEntity,
     @Request() req,
   ): Promise<TaskEntity> {
-    return await this.tasksService.defineTask(task, req.user.email);
+    return await this.tasksService.defineTask(task, req.user._id);
   }
 
   @Get('subAdmins')
@@ -59,7 +59,7 @@ export class TasksController {
     summary: 'نشان دادن تسک های دستیاران ادمین',
   })
   async showTasksOfSubAdmins(@Request() req): Promise<any> {
-    return await this.tasksService.showTasksOfSubAdmins(req.user.email);
+    return await this.tasksService.showTasksOfSubAdmins(req.user._id);
   }
 
   @Get('users')
@@ -67,7 +67,7 @@ export class TasksController {
     summary: 'نشان دادن تسک های کاربران عادی',
   })
   async showTasksOfUsers(@Request() req): Promise<any> {
-    return await this.tasksService.showTasksOfUsers(req.user.email);
+    return await this.tasksService.showTasksOfUsers(req.user._id);
   }
 
   @Patch('changeTitle/:taskKey')
@@ -92,7 +92,7 @@ export class TasksController {
     return await this.tasksService.changeTitle(
       taskKey,
       newTitleData.newTitle,
-      req.user.email,
+      req.user._id,
     );
   }
 
@@ -118,7 +118,7 @@ export class TasksController {
     return await this.tasksService.changeDescription(
       taskKey,
       newDescriptionData.newDescription,
-      req.user.email,
+      req.user._id,
     );
   }
 
@@ -127,7 +127,7 @@ export class TasksController {
     summary: 'علامت گذاری تسک به عنوان در حال بررسی توسط ادمین',
   })
   async markAsPendingTask(@Param('taskKey') taskKey: string, @Request() req) {
-    return await this.tasksService.acceptTask(taskKey, req.user.email);
+    return await this.tasksService.acceptTask(taskKey, req.user._id);
   }
 
   @Patch('acceptTask/:taskKey')
@@ -135,7 +135,7 @@ export class TasksController {
     summary: 'قبول کردن تسک',
   })
   async acceptTask(@Param('taskKey') taskKey: string, @Request() req) {
-    return await this.tasksService.acceptTask(taskKey, req.user.email);
+    return await this.tasksService.acceptTask(taskKey, req.user._id);
   }
 
   @Get('showEnteredUserTasks')
@@ -143,7 +143,7 @@ export class TasksController {
     summary: 'نشان دادن تسک های کاربر وارد شده',
   })
   async showEnteredUserTasks(@Request() req) {
-    return await this.tasksService.showEnteredUserTasks(req.user.email);
+    return await this.tasksService.showEnteredUserTasks(req.user._id);
   }
 
   @Get('showDesiredUserTasks/:username')
@@ -155,7 +155,7 @@ export class TasksController {
     @Param('username') desiredUserUsername: string,
   ) {
     return await this.tasksService.showDesiredUserTasks(
-      req.user.email,
+      req.user._id,
       desiredUserUsername,
     );
   }
@@ -172,7 +172,7 @@ export class TasksController {
     return await this.tasksService.showTasksInDateRange(
       dateRange.fromDate,
       dateRange.toDate,
-      req.user.email,
+      req.user._id,
     );
   }
 
@@ -186,7 +186,7 @@ export class TasksController {
   ): Promise<Object> {
     return await this.tasksService.removeTask(
       'Tasks/' + taskKey,
-      req.user.email,
+      req.user._id,
     );
   }
 }
