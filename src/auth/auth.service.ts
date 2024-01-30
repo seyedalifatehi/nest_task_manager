@@ -13,8 +13,8 @@ export class AuthService {
   async login(user: CreateUserDto) {
     console.log(user);
     const reqUser = await this.usersService.findOneUserByEmail(user.email);
-    if (reqUser?.password !== user.password) {
-      throw new UnauthorizedException();
+    if ((reqUser?.password !== user.password) || !reqUser) {
+      throw new UnauthorizedException('Entered email or password is wrong!');
     }
     const payload = { _id: reqUser._id };
     return {
