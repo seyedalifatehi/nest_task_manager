@@ -39,22 +39,6 @@ export class TasksService {
   ): Promise<TaskEntity> {
     const date = new Date();
 
-    // Import the jalali-moment library
-    const moment = require('jalali-moment');
-
-    console.log(date.toLocaleString('fa-IR'));
-    console.log(date);
-    console.log(date.getUTCDate().toLocaleString('fa-IR') == '27');
-
-    // Create a Jalali (Shamsi) date object
-    const shamsiDate = moment();
-    // Locating date
-    shamsiDate.locale('fa');
-
-    // Format the Shamsi date as a string (e.g., '1403-11-04')
-    const formattedShamsiDate = shamsiDate.format('YYYY-MM-DD');
-    console.log(formattedShamsiDate);
-
     const currentUser =
       await this.usersService.findOneUserById(currentUserId);
     console.log(currentUser);
