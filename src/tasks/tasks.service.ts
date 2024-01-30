@@ -167,7 +167,7 @@ export class TasksService {
     taskKey: string,
     currentUserId: string,
   ): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(currentUserId);
+    const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if ((await currentUser).username !== wantedTask.username) {
       throw new ForbiddenException(
@@ -194,7 +194,7 @@ export class TasksService {
     currentUserId: string,
   ): Promise<any> {
     const currentUser =
-      await this.usersService.findOneUserByEmail(currentUserId);
+      await this.usersService.findOneUserById(currentUserId);
     if (currentUser.role === 'USER') {
       throw new ForbiddenException('you can see only your tasks');
     }
