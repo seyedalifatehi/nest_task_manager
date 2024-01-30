@@ -5,6 +5,7 @@ import { IsNotEmpty, IsString, IsBoolean, IsDate, IsDateString } from 'class-val
 
 @Collection('Tasks')
 export class TaskEntity extends ArangoDocument {
+  @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'userId', example: 'user/1111' })
   username: string;
