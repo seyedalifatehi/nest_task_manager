@@ -35,7 +35,7 @@ export class TasksService {
   // sub admin defines tasks for users
   async defineTask(
     task: TaskEntity,
-    currentUserEmail: string,
+    currentUserId: string,
   ): Promise<TaskEntity> {
     const date = new Date();
 
@@ -56,7 +56,7 @@ export class TasksService {
     console.log(formattedShamsiDate);
 
     const currentUser =
-      await this.usersService.findOneUserByEmail(currentUserEmail);
+      await this.usersService.findOneUserById(currentUserId);
     console.log(currentUser);
 
     const wantedUser = await this.usersService.findOneUserByUsername(
@@ -112,8 +112,8 @@ export class TasksService {
   }
 
   // this method returns all tasks of sub admins
-  async showTasksOfSubAdmins(currentUserEmail: string): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+  async showTasksOfSubAdmins(currentUserId: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserById(currentUserId);
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException(
         'only admin can see the tasks of sub admins',
@@ -137,8 +137,8 @@ export class TasksService {
   }
 
   // this method returns all tasks of users
-  async showTasksOfUsers(currentUserEmail: string): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+  async showTasksOfUsers(currentUserId: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserById(currentUserId);
     if ((await currentUser).role == 'USER') {
       throw new ForbiddenException(
         'only admin and sub admins can see the tasks of users',
@@ -161,8 +161,8 @@ export class TasksService {
   }
 
   // this method make isConpleted property of tasks true
-  async acceptTask(taskKey: string, currentUserEmail: string): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+  async acceptTask(taskKey: string, currentUserId: string): Promise<any> {
+    const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can accept tasks');
@@ -181,9 +181,9 @@ export class TasksService {
   // this method make pending property of tasks true
   async markAsPendingTask(
     taskKey: string,
-    currentUserEmail: string,
+    currentUserId: string,
   ): Promise<any> {
-    const currentUser = this.usersService.findOneUserByEmail(currentUserEmail);
+    const currentUser = this.usersService.findOneUserByEmail(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if ((await currentUser).username !== wantedTask.username) {
       throw new ForbiddenException(
@@ -207,10 +207,10 @@ export class TasksService {
   async showTasksInDateRange(
     fromDate: Date,
     toDate: Date,
-    currentUserEmail: string,
+    currentUserId: string,
   ): Promise<any> {
     const currentUser =
-      await this.usersService.findOneUserByEmail(currentUserEmail);
+      await this.usersService.findOneUserByEmail(currentUserId);
     if (currentUser.role === 'USER') {
       throw new ForbiddenException('you can see only your tasks');
     }
@@ -260,9 +260,9 @@ export class TasksService {
   async changeTitle(
     taskKey: string,
     newTitle: string,
-    email: string,
+    id: string,
   ): Promise<any> {
-    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (!wantedTask) {
@@ -297,9 +297,9 @@ export class TasksService {
   async changeDescription(
     taskKey: string,
     newDescription: string,
-    email: string,
+    id: string,
   ): Promise<any> {
-    const currentUser = await this.usersService.findOneUserByEmail(email);
+    const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (!wantedTask) {
@@ -331,11 +331,11 @@ export class TasksService {
   }
 
   // this method shows the tasks of the logged in user
-  async showEnteredUserTasks(email: string): Promise<Array<any>> {
+  async showEnteredUserTasks(id: string): Promise<Array<any>> {
     const userTasks = await db.query(aql`
       LET user = (
         FOR u IN Users
-          FILTER u.email == ${email}
+          FILTER u._id == ${id}
           RETURN u
       )[0]
       
@@ -353,11 +353,11 @@ export class TasksService {
 
   // this method shows the tasks of the desired in user
   async showDesiredUserTasks(
-    currentUserEmail: string,
+    currentUserId: string,
     desiredUserUsername: string,
   ): Promise<Array<any>> {
     const currentUser =
-      await this.usersService.findOneUserByEmail(currentUserEmail);
+      await this.usersService.findOneUserById(currentUserId);
     const wantedUser =
       await this.usersService.findOneUserByUsername(desiredUserUsername);
 
@@ -383,8 +383,8 @@ export class TasksService {
   }
 
   // this method removes a task
-  async removeTask(_id: string, email: string): Promise<Object> {
-    const currentUser = await this.usersService.findOneUserByEmail(email);
+  async removeTask(_id: string, userId: string): Promise<Object> {
+    const currentUser = await this.usersService.findOneUserById(userId);
 
     const wantedTask = await this.findOneTaskById(_id);
     if (!wantedTask) {
