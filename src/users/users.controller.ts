@@ -16,6 +16,7 @@ import {
   FileTypeValidator,
   ParseFilePipeBuilder,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
@@ -246,6 +247,10 @@ export class UsersController {
   })
   async findOneUserByEmail(@Param('email') email: string): Promise<Object> {
     const selectedUser = await this.usersService.findOneUserByEmail(email);
+    if (!selectedUser) {
+      throw new NotFoundException('Email Not Found');
+    }
+    
     return {
       username: selectedUser.username,
       email: selectedUser.email,

@@ -30,10 +30,7 @@ export class UsersService {
 
   // this methos is for creating user accounts
   // only admin can add users
-  async createUser(
-    user: UserEntity,
-    currentUserId: string,
-  ): Promise<Object> {
+  async createUser(user: UserEntity, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
 
     if (currentUser.role !== 'ADMIN') {
@@ -272,19 +269,13 @@ export class UsersService {
   // this method finds a user account based on its email
   async findOneUserByEmail(email: string): Promise<UserEntity | null> {
     const findQuery = await db.query(aql`
-    FOR u IN Users
-      FILTER u.email == ${email}
-      RETURN u
-  `)
+      FOR u IN Users
+        FILTER u.email == ${email}
+        RETURN u
+    `);
 
-  const foundUser = await findQuery.next()
-
-
-    if (!foundUser) {
-      throw new NotFoundException('Email Not Found');
-    }
-
-    return foundUser;
+    const foundUser = await findQuery.next();
+    return await foundUser;
   }
 
   // this method finds a user account based on its username
@@ -293,9 +284,9 @@ export class UsersService {
       FOR u IN Users
         FILTER u.username == ${username}
         RETURN u
-    `)
+    `);
 
-    const foundUser = await findQuery.next()
+    const foundUser = await findQuery.next();
 
     if (!foundUser) {
       throw new NotFoundException('Username Not Found');
@@ -329,10 +320,7 @@ export class UsersService {
   }
 
   // admin can remove a user with this method
-  async removeUser(
-    username: string,
-    currentUserId: string,
-  ): Promise<Object> {
+  async removeUser(username: string, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
