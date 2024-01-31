@@ -45,6 +45,7 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import * as pdfkit from 'pdfkit'; // Import pdfkit for PDF generation
 import { Response } from 'express';
+import { promisify } from 'util';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -257,21 +258,31 @@ export class UsersController {
   async deleteFile(@Request() req) {
     const currentUser = await this.usersService.findOneUserById(req.user._id);
     if (currentUser.userProfilePhotoPath.length === 0) {
-      throw new ForbiddenException('you currently dont have profile photo');
+      throw new ForbiddenException('You currently dont have a profile photo');
     }
 
-    currentUser.userProfilePhotoPath = '';
-    await this.usersService.updateUser(currentUser, currentUser);
-    await fs.unlink(`./${currentUser.userProfilePhotoPath}`, (err) => {
-      if (err) {
-        console.error(err);
-        return err;
+    try {
+      // Ensure that the path is a valid file path before attempting to delete
+      const filePath = currentUser.userProfilePhotoPath;
+      if (fs.existsSync(filePath)) {
+        // Use promisify to make unlink work with async/await
+        const unlinkAsync = promisify(fs.unlink);
+        await unlinkAsync(filePath);
+      
+        // Clear the userProfilePhotoPath and update the user
+        currentUser.userProfilePhotoPath = '';
+        await this.usersService.updateUser(currentUser, currentUser);
+      } else {
+        throw new BadRequestException('Profile photo not found at the specified path');
       }
-    });
 
-    return {
-      message: 'your profile photo deleted successfully',
-    };
+      return {
+        message: 'Your profile photo was deleted successfully',
+      };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('An error occurred while deleting the profile photo.');
+    }
   }
 
   @Get('findByUsername/:username')
