@@ -23,6 +23,8 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { NewTitleAndDescriptionDto } from './dto/new-title-and-description.dto';
+import { NewDeadlineDateDto } from './dto/new-deadline-date.dto';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -32,7 +34,6 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({
     summary: 'تعریف کردن تسک',
   })
@@ -80,16 +81,14 @@ export class TasksController {
 
     if (role == 'USER') {
       return await this.tasksService.showTasksOfUsers(req.user._id);
-    }
-
-    else {
-      throw new NotFoundException('role not found')
+    } else {
+      throw new NotFoundException('role not found');
     }
   }
 
-  @Patch('changeTitle/:taskKey')
+  @Patch('changeTitleAndDescription/:taskKey')
   @ApiOperation({
-    summary: 'تغییر عنوان یک تسک',
+    summary: 'تغییر توضیحات و عنوان یک تسک',
   })
   @ApiBody({
     schema: {
@@ -98,45 +97,66 @@ export class TasksController {
         newTitle: {
           type: 'string',
         },
-      },
-    },
-  })
-  async changeTitle(
-    @Param('taskKey') taskKey: string,
-    @Body() newTitleData: { newTitle: string },
-    @Request() req,
-  ) {
-    return await this.tasksService.changeTitle(
-      taskKey,
-      newTitleData.newTitle,
-      req.user._id,
-    );
-  }
-
-  @Patch('changeDescription/:taskKey')
-  @ApiOperation({
-    summary: 'تغییر توضیحات یک تسک',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
         newDescription: {
           type: 'string',
         },
       },
     },
   })
-  async changeDescription(
+  async changeTitleAndDescription(
     @Param('taskKey') taskKey: string,
-    @Body() newDescriptionData: { newDescription: string },
+    @Body() newTitleAndDescriptionDto: NewTitleAndDescriptionDto,
     @Request() req,
   ) {
-    return await this.tasksService.changeDescription(
+    await this.tasksService.changeTitle(
       taskKey,
-      newDescriptionData.newDescription,
+      newTitleAndDescriptionDto.newTitle,
       req.user._id,
     );
+
+    await this.tasksService.changeDescription(
+      taskKey,
+      newTitleAndDescriptionDto.newDescription,
+      req.user._id,
+    );
+
+    return {
+      message: 'the title and the description of the task changed successfully',
+      newTitle: newTitleAndDescriptionDto.newTitle,
+      newDescription: newTitleAndDescriptionDto.newDescription,
+    };
+  }
+
+  @Patch('changeDeadlineDate/:taskKey')
+  @ApiOperation({
+    summary: 'تغییر زمان تحویل یک تسک',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newDeadlineDate: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+    },
+  })
+  async changeDeadlineDate(
+    @Param('taskKey') taskKey: string,
+    @Body() newDeadlineDate: NewDeadlineDateDto,
+    @Request() req,
+  ) {
+    await this.tasksService.changeDeadlineDate(
+      taskKey,
+      newDeadlineDate.newDeadlineDate,
+      req.user._id,
+    );
+
+    return {
+      message: 'task deadline changed successfully',
+      newDeadlineDate: newDeadlineDate.newDeadlineDate,
+    };
   }
 
   @Patch('pendingTask/:taskKey')

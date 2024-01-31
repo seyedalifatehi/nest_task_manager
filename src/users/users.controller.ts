@@ -40,7 +40,7 @@ import * as fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { PasswordDataDto } from './dto/password-data.dto';
-import { NewUsernameAndEmailDataDto } from './dto/new-un-and-email-data.dto';
+import { NewUsernameAndEmailDto } from './dto/new-un-and-email.dto';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import * as pdfkit from 'pdfkit'; // Import pdfkit for PDF generation
@@ -155,7 +155,7 @@ export class UsersController {
   })
   async editUsernameAndEmail(
     @Request() req,
-    @Body() newUsernameAndEmailDataDto: NewUsernameAndEmailDataDto,
+    @Body() newUsernameAndEmailDataDto: NewUsernameAndEmailDto,
   ): Promise<Object> {
     await this.usersService.editUsername(
       req.user._id,

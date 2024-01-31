@@ -72,20 +72,6 @@ export class TasksService {
     task.isCompleted = false;
     task.defineDate = date;
 
-    const existingTask = await db.query(aql`
-      LET existTask = (
-        FOR t IN Tasks
-          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.title == ${task.title} && t.description == ${task.description} && t.deadlineDate == ${task.deadlineDate}
-          LIMIT 1
-          RETURN t
-      )
-
-      RETURN existTask[0]
-    `);
-
-    if (await existingTask.next()) {
-      throw new ForbiddenException('this task is defined previously');
-    }
     const definedTask = await this.taskRepository.save(task);
 
     wantedUser.userTaskIds.push(definedTask._id);
@@ -265,13 +251,7 @@ export class TasksService {
     }
 
     if (new Date() > new Date(wantedTask.deadlineDate)) {
-      throw new ForbiddenException(
-        'the outdated task cannot be marked as pending',
-      );
-    }
-
-    if (wantedTask.title === newTitle) {
-      throw new ForbiddenException("this is this task's current title");
+      throw new ForbiddenException('the outdated task cannot be edited');
     }
 
     return await this.updateTask(wantedTask, { title: newTitle });
@@ -299,16 +279,40 @@ export class TasksService {
     }
 
     if (new Date() > new Date(wantedTask.deadlineDate)) {
-      throw new ForbiddenException(
-        'the outdated task cannot be marked as pending',
-      );
-    }
-
-    if (wantedTask.description === newDescription) {
-      throw new ForbiddenException("this is this task's current description");
+      throw new ForbiddenException('the outdated task cannot be edited');
     }
 
     return await this.updateTask(wantedTask, { description: newDescription });
+  }
+
+  // this method is used for changing description of a task
+  async changeDeadlineDate(
+    taskKey: string,
+    newDeadlineDate: Date,
+    id: string,
+  ): Promise<any> {
+    const currentUser = await this.usersService.findOneUserById(id);
+
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+
+    const username = wantedTask.username;
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
+
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
+      throw new ForbiddenException(
+        'you are not allowed to change the deadline date of this task',
+      );
+    }
+
+    if (new Date() > new Date(newDeadlineDate)) {
+      throw new ForbiddenException(
+        'the deadline date cannot be less than today',
+      );
+    }
+
+    return await this.updateTask(wantedTask, { deadlineDate: newDeadlineDate });
   }
 
   // this method shows the tasks of the logged in user
