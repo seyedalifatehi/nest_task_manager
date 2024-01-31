@@ -10,11 +10,19 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TaskEntity } from './entities/task.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -54,20 +62,29 @@ export class TasksController {
     return await this.tasksService.defineTask(task, req.user._id);
   }
 
-  @Get('subAdmins')
+  @Get('showTasksOfMembers')
   @ApiOperation({
-    summary: 'نشان دادن تسک های دستیاران ادمین',
+    summary: 'نشان دادن تسک های دستیاران ادمین یا کاربران عادی',
   })
-  async showTasksOfSubAdmins(@Request() req): Promise<any> {
-    return await this.tasksService.showTasksOfSubAdmins(req.user._id);
-  }
+  @ApiQuery({
+    name: 'role',
+    enum: ['USER', 'SUB_ADMIN'],
+  })
+  async showTasksOfMembers(
+    @Request() req,
+    @Query('role') role: 'USER' | 'SUB_ADMIN',
+  ): Promise<any> {
+    if (role == 'SUB_ADMIN') {
+      return await this.tasksService.showTasksOfSubAdmins(req.user._id);
+    }
 
-  @Get('users')
-  @ApiOperation({
-    summary: 'نشان دادن تسک های کاربران عادی',
-  })
-  async showTasksOfUsers(@Request() req): Promise<any> {
-    return await this.tasksService.showTasksOfUsers(req.user._id);
+    if (role == 'USER') {
+      return await this.tasksService.showTasksOfUsers(req.user._id);
+    }
+
+    else {
+      throw new NotFoundException('role not found')
+    }
   }
 
   @Patch('changeTitle/:taskKey')
@@ -184,9 +201,6 @@ export class TasksController {
     @Request() req,
     @Param('taskKey') taskKey: string,
   ): Promise<Object> {
-    return await this.tasksService.removeTask(
-      'Tasks/' + taskKey,
-      req.user._id,
-    );
+    return await this.tasksService.removeTask('Tasks/' + taskKey, req.user._id);
   }
 }
