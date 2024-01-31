@@ -230,6 +230,7 @@ export class UsersController {
     const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
     await fsPromise.writeFile(imagePath, imageBuffer);
 
+    console.log(imagePath)
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
 
@@ -271,7 +272,7 @@ export class UsersController {
 
     currentUser.userProfilePhotoPath = '';
     await this.usersService.updateUser(currentUser, currentUser);
-    await fs.unlink(`./images/profiles/${currentUser.username}.jpeg`, (err) => {
+    await fs.unlink(`./${currentUser.userProfilePhotoPath}`, (err) => {
     if (err) {
       console.error(err);
       return err;
