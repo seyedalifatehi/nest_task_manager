@@ -187,7 +187,7 @@ export class TasksService {
       const query = await db.query(aql`
         FOR t IN Tasks
           FOR u IN Users
-            FILTER t.username == u.username && u.role == 'USER' && t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate}
+            FILTER ((t.username == u.username) && (u.role == 'USER' || t.username == ${currentUser.username})) && (t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate})
             RETURN t
       `);
       return await query.all();
