@@ -277,6 +277,10 @@ export class UsersController {
       return err;
     }
     });
+
+    return {
+      message: "your profile photo deleted successfully"
+    }
   }
 
   @Get('findByUsername/:username')
