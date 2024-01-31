@@ -304,15 +304,10 @@ export class UsersService {
       throw new ForbiddenException('only admin can delete users');
     }
 
-    await db.query(aql`
-      LET user = (
-        FOR u IN Users
-          FILTER u.username == ${username}
-          LIMIT 1
-          RETURN u
-      )[0]
+    const wantedUser = await this.findOneUserByUsername(username);
 
-      FOR taskId IN user.userTaskIds
+    await db.query(aql`
+      FOR taskId IN ${wantedUser.userTaskIds}
         FOR task IN Tasks
           FILTER task._id == taskId
           REMOVE task IN Tasks
