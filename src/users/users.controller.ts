@@ -40,7 +40,7 @@ import * as fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { PasswordDataDto } from './dto/password-data.dto';
-import { NewEmailDataDto } from './dto/new-email-data.dto';
+import { NewUsernameAndEmailDataDto } from './dto/new-email-data.dto';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import * as pdfkit from 'pdfkit'; // Import pdfkit for PDF generation
@@ -134,9 +134,9 @@ export class UsersController {
     return await this.usersService.changeRole(req.user._id, username);
   }
 
-  @Patch('editUsername')
+  @Patch('editUsernameAndEmail')
   @ApiOperation({
-    summary: 'تغییر نام کاربری کاربر کنونی',
+    summary: 'تغییر ایمیل و نام کاربری کاربر کنونی',
   })
   @ApiBody({
     schema: {
@@ -145,27 +145,6 @@ export class UsersController {
         newUsername: {
           type: 'string',
         },
-      },
-    },
-  })
-  async editUsername(
-    @Request() req,
-    @Body() newUsernameData: { newUsername: string },
-  ): Promise<Object> {
-    return await this.usersService.editUsername(
-      req.user._id,
-      newUsernameData.newUsername,
-    );
-  }
-
-  @Patch('editEmail')
-  @ApiOperation({
-    summary: 'تغییر ایمیل کاربر کنونی',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
         newEmail: {
           type: 'string',
           format: 'email',
@@ -173,14 +152,24 @@ export class UsersController {
       },
     },
   })
-  async editEmail(
+  async editUsernameAndEmail(
     @Request() req,
-    @Body() newEmailDataDto: NewEmailDataDto,
+    @Body() newUsernameAndEmailDataDto: NewUsernameAndEmailDataDto,
   ): Promise<Object> {
-    return await this.usersService.editEmail(
+    await this.usersService.editEmail(
       req.user._id,
-      newEmailDataDto.newEmail,
+      newUsernameAndEmailDataDto.newEmail,
     );
+
+    await this.usersService.editUsername(
+      req.user._id,
+      newUsernameAndEmailDataDto.newUsername,
+    );
+    return {
+      message: 'profile changed successfully',
+      newUsername: newUsernameAndEmailDataDto.newUsername,
+      newEmail: newUsernameAndEmailDataDto.newEmail,
+    };
   }
 
   // this method uploads current users profile photo
@@ -230,7 +219,7 @@ export class UsersController {
     const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
     await fsPromise.writeFile(imagePath, imageBuffer);
 
-    console.log(imagePath)
+    console.log(imagePath);
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
 
@@ -265,23 +254,23 @@ export class UsersController {
 
   @Delete('deleteProfilePhoto')
   async deleteFile(@Request() req) {
-    const currentUser = await this.usersService.findOneUserById(req.user._id)
+    const currentUser = await this.usersService.findOneUserById(req.user._id);
     if (currentUser.userProfilePhotoPath.length === 0) {
-      throw new ForbiddenException('you currently dont have profile photo')
+      throw new ForbiddenException('you currently dont have profile photo');
     }
 
     currentUser.userProfilePhotoPath = '';
     await this.usersService.updateUser(currentUser, currentUser);
     await fs.unlink(`./${currentUser.userProfilePhotoPath}`, (err) => {
-    if (err) {
-      console.error(err);
-      return err;
-    }
+      if (err) {
+        console.error(err);
+        return err;
+      }
     });
 
     return {
-      message: "your profile photo deleted successfully"
-    }
+      message: 'your profile photo deleted successfully',
+    };
   }
 
   @Get('findByUsername/:username')

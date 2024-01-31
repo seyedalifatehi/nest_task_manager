@@ -194,12 +194,7 @@ export class UsersService {
   ): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     const oldUsername = currentUser.username;
-    if (newUsername === oldUsername) {
-      throw new ForbiddenException(
-        'you cannot consider your current username as your new username',
-      );
-    }
-
+    
     const existUser = await db.query(aql`
       FOR u IN Users
         FILTER u.username == ${newUsername}
@@ -208,7 +203,7 @@ export class UsersService {
     `);
 
     if (await existUser.next()) {
-      throw new ForbiddenException('this username exists');
+      throw new ForbiddenException('this username already exists');
     }
 
     await this.updateUser(currentUser, {
@@ -234,11 +229,6 @@ export class UsersService {
   async editEmail(currentUserId: string, newEmail: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     const oldEmail = currentUser.email;
-    if (newEmail === oldEmail) {
-      throw new ForbiddenException(
-        'you cannot consider your current email as your new email',
-      );
-    }
 
     const existUser = await db.query(aql`
       FOR u IN Users
@@ -248,7 +238,7 @@ export class UsersService {
     `);
 
     if (await existUser.next()) {
-      throw new ForbiddenException('this email exists');
+      throw new ForbiddenException('this email already exists');
     }
 
     await this.updateUser(currentUser, { email: newEmail });
