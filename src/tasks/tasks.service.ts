@@ -39,8 +39,7 @@ export class TasksService {
   ): Promise<TaskEntity> {
     const date = new Date();
 
-    const currentUser =
-      await this.usersService.findOneUserById(currentUserId);
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
     console.log(currentUser);
 
     const wantedUser = await this.usersService.findOneUserByUsername(
@@ -193,8 +192,7 @@ export class TasksService {
     toDate: Date,
     currentUserId: string,
   ): Promise<any> {
-    const currentUser =
-      await this.usersService.findOneUserById(currentUserId);
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
     if (currentUser.role === 'USER') {
       throw new ForbiddenException('you can see only your tasks');
     }
@@ -219,7 +217,12 @@ export class TasksService {
 
   // this method returns a task by an Id
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
-    return await this.taskRepository.findOneBy({ _id });
+    const foundTask = await this.taskRepository.findOneBy({ _id });
+    if (!foundTask) {
+      throw new NotFoundException('Task id not found');
+    }
+
+    return foundTask;
   }
 
   // this method returns all of the tasks
@@ -249,9 +252,6 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
-    if (!wantedTask) {
-      throw new NotFoundException('task not found');
-    }
 
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
@@ -286,9 +286,6 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
-    if (!wantedTask) {
-      throw new NotFoundException('task not found');
-    }
 
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
@@ -340,8 +337,7 @@ export class TasksService {
     currentUserId: string,
     desiredUserUsername: string,
   ): Promise<Array<any>> {
-    const currentUser =
-      await this.usersService.findOneUserById(currentUserId);
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
     const wantedUser =
       await this.usersService.findOneUserByUsername(desiredUserUsername);
 
@@ -371,9 +367,6 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(userId);
 
     const wantedTask = await this.findOneTaskById(_id);
-    if (!wantedTask) {
-      throw new NotFoundException('task id not found');
-    }
 
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
