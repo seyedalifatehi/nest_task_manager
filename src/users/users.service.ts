@@ -6,6 +6,7 @@ import {
 import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
+import * as fs from 'fs';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -189,13 +190,26 @@ export class UsersService {
   ): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     const oldUsername = currentUser.username;
-    
+
     const existUser = await db.query(aql`
       FOR u IN Users
-        FILTER u.username == ${newUsername}
+        FILTER u.username == ${newUsername} && ${oldUsername} != ${newUsername}
         LIMIT 1
         RETURN u
     `);
+
+    const oldFilePath = currentUser.userProfilePhotoPath; // Replace with your old file path
+    const newFilePath = `./images/profiles/${currentUser.username}.jpeg`; // Replace with your new file path
+
+    fs.rename(oldFilePath, newFilePath, (err) => {
+      if (err) {
+        console.error('Error renaming file:', err);
+      } else {
+        console.log('File renamed successfully');
+      }
+    });
+    currentUser.userProfilePhotoPath = newFilePath;
+    await this.updateUser(currentUser, currentUser);
 
     if (await existUser.next()) {
       throw new ForbiddenException('this username already exists');
@@ -227,7 +241,7 @@ export class UsersService {
 
     const existUser = await db.query(aql`
       FOR u IN Users
-        FILTER u.email == ${newEmail}
+        FILTER u.email == ${newEmail} && ${oldEmail} != ${newEmail}
         LIMIT 1
         RETURN u
     `);
