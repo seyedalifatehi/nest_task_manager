@@ -20,7 +20,7 @@ import {
   Res,
   StreamableFile,
   BadRequestException,
-  Response,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
@@ -35,13 +35,16 @@ import {
 } from '@nestjs/swagger';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
-import * as fs from 'fs/promises';
+import * as fsPromise from 'fs/promises';
+import * as fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { PasswordDataDto } from './dto/password-data.dto';
 import { NewEmailDataDto } from './dto/new-email-data.dto';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import * as pdfkit from 'pdfkit'; // Import pdfkit for PDF generation
+import { Response } from 'express';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -215,12 +218,17 @@ export class UsersController {
     @Request() req,
   ) {
     const currentUser = await this.usersService.findOneUserById(req.user._id);
+    if (currentUser.userProfilePhotoPath.length !== 0) {
+      throw new ForbiddenException(
+        'you currently have profile photo. for set a new profile photo you should delete your profile photo first',
+      );
+    }
 
     const imageId = await uuidv4();
     const folderPath: string = './images/profiles/';
     const imageBuffer = image.buffer;
     const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
-    await fs.writeFile(imagePath, imageBuffer);
+    await fsPromise.writeFile(imagePath, imageBuffer);
 
     currentUser.userProfilePhotoPath = imagePath;
     await this.usersService.updateUser(currentUser, currentUser);
@@ -231,25 +239,44 @@ export class UsersController {
     };
   }
 
-  @Get('downloadFile/:username')
+  @Get('downloadProfilePhoto/:username')
   @ApiOperation({
     summary: 'دانلود عکس پروفایل',
   })
-  async getFileCustomizedResponse(
-    @Response({ passthrough: true }) res,
+  async downloadProfilePhoto(
+    @Res({ passthrough: true }) res,
     @Param('username') username: string,
   ): Promise<StreamableFile> {
-    const wantedUser = await this.usersService.findOneUserByUsername(username)
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
     if (wantedUser.userProfilePhotoPath.length === 0) {
-      throw new NotFoundException('this user doesnt have profile photo')
+      throw new NotFoundException('this user doesnt have profile photo');
     }
 
-    const file = createReadStream(join(process.cwd(), `${wantedUser.userProfilePhotoPath}`));
+    const file = createReadStream(
+      join(process.cwd(), `${wantedUser.userProfilePhotoPath}`),
+    );
     res.set({
       'Content-Type': 'image/jpeg',
-      'Content-Disposition': `attachment; filename="${wantedUser.username}.jpeg`
-    })
+      'Content-Disposition': `attachment; filename="${wantedUser.username}.jpeg`,
+    });
     return new StreamableFile(file);
+  }
+
+  @Delete('deleteProfilePhoto')
+  async deleteFile(@Request() req) {
+    const currentUser = await this.usersService.findOneUserById(req.user._id)
+    if (currentUser.userProfilePhotoPath.length === 0) {
+      throw new ForbiddenException('you currently dont have profile photo')
+    }
+
+    currentUser.userProfilePhotoPath = '';
+    await this.usersService.updateUser(currentUser, currentUser);
+    await fs.unlink(`./images/profiles/${currentUser.username}.jpeg`, (err) => {
+    if (err) {
+      console.error(err);
+      return err;
+    }
+    });
   }
 
   @Get('findByUsername/:username')
@@ -287,7 +314,7 @@ export class UsersController {
 
   @Delete(':username')
   @ApiOperation({
-    summary: 'حذف کاربر',
+    summary: 'حذف کاربر توسط ادمین',
   })
   async remove(
     @Request() req,
