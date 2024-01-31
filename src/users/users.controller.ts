@@ -17,6 +17,10 @@ import {
   ParseFilePipeBuilder,
   HttpStatus,
   NotFoundException,
+  Res,
+  StreamableFile,
+  BadRequestException,
+  Response,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
@@ -36,6 +40,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { PasswordDataDto } from './dto/password-data.dto';
 import { NewEmailDataDto } from './dto/new-email-data.dto';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -223,6 +229,27 @@ export class UsersController {
       imageId: await imageId,
       message: 'photo uploaded successfully',
     };
+  }
+
+  @Get('downloadFile/:username')
+  @ApiOperation({
+    summary: 'دانلود عکس پروفایل',
+  })
+  async getFileCustomizedResponse(
+    @Response({ passthrough: true }) res,
+    @Param('username') username: string,
+  ): Promise<StreamableFile> {
+    const wantedUser = await this.usersService.findOneUserByUsername(username)
+    if (wantedUser.userProfilePhotoPath.length === 0) {
+      throw new NotFoundException('this user doesnt have profile photo')
+    }
+
+    const file = createReadStream(join(process.cwd(), `${wantedUser.userProfilePhotoPath}`));
+    res.set({
+      'Content-Type': 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${wantedUser.username}.jpeg`
+    })
+    return new StreamableFile(file);
   }
 
   @Get('findByUsername/:username')
