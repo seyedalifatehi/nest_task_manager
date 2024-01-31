@@ -76,7 +76,7 @@ export class TasksService {
     const existingTask = await db.query(aql`
       LET existTask = (
         FOR t IN Tasks
-          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.pending == ${task.pending} && t.title == ${task.title} && t.description == ${task.description} && t.deadlineDate == ${task.deadlineDate}
+          FILTER t.username == ${task.username} && t.isCompleted == ${task.isCompleted} && t.title == ${task.title} && t.description == ${task.description} && t.deadlineDate == ${task.deadlineDate}
           LIMIT 1
           RETURN t
       )
