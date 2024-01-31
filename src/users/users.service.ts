@@ -6,11 +6,6 @@ import {
 import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 
 const db = new Database({
   url: 'http://localhost:8529',
