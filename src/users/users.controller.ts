@@ -156,15 +156,16 @@ export class UsersController {
     @Request() req,
     @Body() newUsernameAndEmailDataDto: NewUsernameAndEmailDataDto,
   ): Promise<Object> {
+    await this.usersService.editUsername(
+      req.user._id,
+      newUsernameAndEmailDataDto.newUsername,
+    );
+
     await this.usersService.editEmail(
       req.user._id,
       newUsernameAndEmailDataDto.newEmail,
     );
 
-    await this.usersService.editUsername(
-      req.user._id,
-      newUsernameAndEmailDataDto.newUsername,
-    );
     return {
       message: 'profile changed successfully',
       newUsername: newUsernameAndEmailDataDto.newUsername,
