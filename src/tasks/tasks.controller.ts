@@ -202,6 +202,21 @@ export class TasksController {
     summary:
       'نشان دادن تسک هایی که مهلت تحویلشان در یک بازه تاریخ مشخص شده هستند',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fromDate: {
+          type: 'string',
+          format: 'date',
+        },
+        toDate: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+    },
+  })
   async showTasksInDateRange(
     @Body() dateRange: { fromDate: Date; toDate: Date },
     @Request() req,
