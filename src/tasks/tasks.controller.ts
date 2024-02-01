@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { NewTitleAndDescriptionDto } from './dto/new-title-and-description.dto';
 import { NewDeadlineDateDto } from './dto/new-deadline-date.dto';
+import { DateRangeDto } from './dto/date-range.dto';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -218,12 +219,12 @@ export class TasksController {
     },
   })
   async showTasksInDateRange(
-    @Body() dateRange: { fromDate: Date; toDate: Date },
+    @Body() dateRangeDto: DateRangeDto,
     @Request() req,
   ) {
     return await this.tasksService.showTasksInDateRange(
-      dateRange.fromDate,
-      dateRange.toDate,
+      dateRangeDto.fromDate,
+      dateRangeDto.toDate,
       req.user._id,
     );
   }
