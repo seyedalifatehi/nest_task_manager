@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from '../users/users.module';
 import { ArangoModule } from 'nest-arango';
-import { TasksModule } from './tasks/tasks.module';
-import { AuthModule } from './auth/auth.module';
+import { TasksModule } from '../tasks/tasks.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { AuthModule } from './auth/auth.module';
         databaseName: '_system',
         auth: {
           username: 'root',
-          password: 'azim1383'
+          password: 'azim1383',
         },
       },
     }),
