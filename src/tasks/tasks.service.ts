@@ -56,7 +56,9 @@ export class TasksService {
       );
     }
 
-    if (!await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
       throw new ForbiddenException(
         'you are not allowed to define task for this user',
       );
@@ -375,7 +377,9 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
-    if (!await this.usersService.userAccessHandleError(currentUser, wantedUser)) {
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
       throw new ForbiddenException(
         'you are not allowed to remove the task of this user',
       );
