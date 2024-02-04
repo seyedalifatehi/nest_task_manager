@@ -75,16 +75,14 @@ export class TasksController {
   async showTasksOfMembers(
     @Request() req,
     @Query('role') role: 'USER' | 'SUB_ADMIN',
+    @Body() dateRangeDto: DateRangeDto,
   ): Promise<any> {
-    if (role == 'SUB_ADMIN') {
-      return await this.tasksService.showTasksOfSubAdmins(req.user._id);
-    }
-
-    if (role == 'USER') {
-      return await this.tasksService.showTasksOfUsers(req.user._id);
-    } else {
-      throw new NotFoundException('role not found');
-    }
+    return await this.tasksService.showTasksOfMembers(
+      req.user._id,
+      role,
+      dateRangeDto.startDateRange,
+      dateRangeDto.endDateRange,
+    );
   }
 
   @Patch('changeTitleAndDescription/:taskKey')
@@ -201,7 +199,7 @@ export class TasksController {
   @Get('showTasksInDateRange')
   @ApiOperation({
     summary:
-      'نشان دادن تسک هایی که مهلت تحویلشان در یک بازه تاریخ مشخص شده هستند',
+      'نشان دادن تسک هایی که زمان تعریفشان در یک بازه تاریخ مشخص شده هستند',
   })
   @ApiBody({
     schema: {
@@ -223,8 +221,8 @@ export class TasksController {
     @Request() req,
   ) {
     return await this.tasksService.showTasksInDateRange(
-      dateRangeDto.fromDate,
-      dateRangeDto.toDate,
+      dateRangeDto.startDateRange,
+      dateRangeDto.endDateRange,
       req.user._id,
     );
   }

@@ -82,8 +82,29 @@ export class TasksService {
     return definedTask;
   }
 
-  // this method returns all tasks of sub admins
-  async showTasksOfSubAdmins(currentUserId: string): Promise<any> {
+  async showTasksOfMembers(
+    currentUserId: string,
+    role: 'USER' | 'SUB_ADMIN',
+    startDateRange: Date,
+    endDateRange: Date,
+  ) {
+    if (role == 'SUB_ADMIN') {
+      return await this.showTasksOfSubAdmins(currentUserId, startDateRange, endDateRange);
+    }
+
+    if (role == 'USER') {
+      return await this.showTasksOfUsers(currentUserId, startDateRange, endDateRange);
+    } else {
+      throw new NotFoundException('role not found');
+    }
+  }
+
+  // this method returns all tasks of sub admins (in a date range)
+  async showTasksOfSubAdmins(
+    currentUserId: string,
+    startDateRange: Date,
+    endDateRange: Date,
+  ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException(
@@ -101,14 +122,19 @@ export class TasksService {
       FOR subAdmin IN subAdmins
         FOR taskId IN subAdmin.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
+          FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
           RETURN task
     `);
 
-    return await query.all();
+    return await query.all(); 
   }
 
-  // this method returns all tasks of users
-  async showTasksOfUsers(currentUserId: string): Promise<any> {
+  // this method returns all tasks of users (in a date range)
+  async showTasksOfUsers(
+    currentUserId: string,
+    startDateRange: Date,
+    endDateRange: Date,
+  ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     if ((await currentUser).role == 'USER') {
       throw new ForbiddenException(
@@ -125,6 +151,7 @@ export class TasksService {
       FOR subAdmin IN subAdmins
         FOR taskId IN subAdmin.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
+          FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
           RETURN task
     `);
 
@@ -176,8 +203,8 @@ export class TasksService {
 
   // this method returns all tasks that their deadline date are between a date range
   async showTasksInDateRange(
-    fromDate: Date,
-    toDate: Date,
+    startDateRange: Date,
+    endDateRange: Date,
     currentUserId: string,
   ): Promise<any> {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
@@ -189,7 +216,7 @@ export class TasksService {
       const query = await db.query(aql`
         FOR t IN Tasks
           FOR u IN Users
-            FILTER ((t.username == u.username) && (u.role == 'USER' || t.username == ${currentUser.username})) && (t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate})
+            FILTER ((t.username == u.username) && (u.role == 'USER' || t.username == ${currentUser.username})) && (t.defineDate >= ${startDateRange} && t.defineDate <= ${endDateRange})
             RETURN t
       `);
       return await query.all();
@@ -197,7 +224,7 @@ export class TasksService {
 
     const query = await db.query(aql`
       FOR t IN Tasks
-        FILTER t.deadlineDate >= ${fromDate} && t.deadlineDate <= ${toDate}
+        FILTER t.defineDate >= ${startDateRange} && t.defineDate <= ${endDateRange}
         RETURN t
     `);
     return await query.all();
@@ -333,7 +360,7 @@ export class TasksService {
     `);
 
     if (!userTasks) {
-      throw new ForbiddenException('ther is no task for showing');
+      throw new ForbiddenException('there is no task for showing');
     }
     return await userTasks.all();
   }

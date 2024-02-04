@@ -7,13 +7,13 @@ export class DateRangeDto {
     description: 'from this date',
     example: new Date('2024-12-31T00:00:00.000Z'),
   })
-  fromDate: Date;
+  startDateRange: Date;
 
   @IsDateString()
   @ApiProperty({
     description: 'to this date',
     example: new Date('2024-12-31T00:00:00.000Z'),
   })
-  toDate: Date;
+  endDateRange: Date;
 
 }
