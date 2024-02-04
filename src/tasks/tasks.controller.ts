@@ -72,6 +72,21 @@ export class TasksController {
     name: 'role',
     enum: ['USER', 'SUB_ADMIN'],
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fromDate: {
+          type: 'string',
+          format: 'date',
+        },
+        toDate: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+    },
+  })
   async showTasksOfMembers(
     @Request() req,
     @Query('role') role: 'USER' | 'SUB_ADMIN',
