@@ -193,21 +193,6 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر دلخواه',
   })
-  async showDesiredUserTasks(
-    @Request() req,
-    @Param('username') desiredUserUsername: string,
-  ) {
-    return await this.tasksService.showDesiredUserTasks(
-      req.user._id,
-      desiredUserUsername,
-    );
-  }
-
-  @Get('showTasksInDateRange')
-  @ApiOperation({
-    summary:
-      'نشان دادن تسک هایی که زمان تعریفشان در یک بازه تاریخ مشخص شده هستند',
-  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -223,14 +208,16 @@ export class TasksController {
       },
     },
   })
-  async showTasksInDateRange(
-    @Body() dateRangeDto: DateRangeDto,
+  async showDesiredUserTasks(
     @Request() req,
+    @Param('username') desiredUserUsername: string,
+    @Body() dateRangeDto: DateRangeDto,
   ) {
-    return await this.tasksService.showTasksInDateRange(
+    return await this.tasksService.showDesiredUserTasks(
+      req.user._id,
+      desiredUserUsername,
       dateRangeDto.startDateRange,
       dateRangeDto.endDateRange,
-      req.user._id,
     );
   }
 

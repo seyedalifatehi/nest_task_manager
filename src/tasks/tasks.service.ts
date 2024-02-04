@@ -209,35 +209,6 @@ export class TasksService {
     return await this.updateTask(wantedTask, { pending: true });
   }
 
-  // this method returns all tasks that their deadline date are between a date range
-  async showTasksInDateRange(
-    startDateRange: Date,
-    endDateRange: Date,
-    currentUserId: string,
-  ): Promise<any> {
-    const currentUser = await this.usersService.findOneUserById(currentUserId);
-    if (currentUser.role === 'USER') {
-      throw new ForbiddenException('you can see only your tasks');
-    }
-
-    if (currentUser.role === 'SUB_ADMIN') {
-      const query = await db.query(aql`
-        FOR t IN Tasks
-          FOR u IN Users
-            FILTER ((t.username == u.username) && (u.role == 'USER' || t.username == ${currentUser.username})) && (t.defineDate >= ${startDateRange} && t.defineDate <= ${endDateRange})
-            RETURN t
-      `);
-      return await query.all();
-    }
-
-    const query = await db.query(aql`
-      FOR t IN Tasks
-        FILTER t.defineDate >= ${startDateRange} && t.defineDate <= ${endDateRange}
-        RETURN t
-    `);
-    return await query.all();
-  }
-
   // this method returns a task by an Id
   async findOneTaskById(_id: string): Promise<TaskEntity | null> {
     const foundTask = await this.taskRepository.findOneBy({ _id });
@@ -352,7 +323,7 @@ export class TasksService {
     return await this.updateTask(wantedTask, { deadlineDate: newDeadlineDate });
   }
 
-  // this method shows the tasks of the logged in user
+  // this method shows the tasks of the logged in user (in a date range)
   async showEnteredUserTasks(
     currentUserId: string,
     startDateRange: Date,
@@ -378,10 +349,12 @@ export class TasksService {
     return await userTasks.all();
   }
 
-  // this method shows the tasks of the desired in user
+  // this method shows the tasks of the desired in user (in a date range)
   async showDesiredUserTasks(
     currentUserId: string,
     desiredUserUsername: string,
+    startDateRange: Date,
+    endDateRange: Date,
   ): Promise<Array<any>> {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
     const wantedUser =
@@ -397,7 +370,9 @@ export class TasksService {
 
     const tasks = [];
     for (let i = 0; i < wantedUser.userTaskIds.length; i++) {
-      tasks.push(await this.findOneTaskById(wantedUser.userTaskIds[i]));
+      const foundTask = await this.findOneTaskById(wantedUser.userTaskIds[i])
+      if (foundTask.defineDate >= startDateRange && foundTask.defineDate <= endDateRange)
+        tasks.push(foundTask);
     }
 
     console.log(tasks);
