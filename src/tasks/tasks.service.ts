@@ -370,8 +370,11 @@ export class TasksService {
 
     const tasks = [];
     for (let i = 0; i < wantedUser.userTaskIds.length; i++) {
-      const foundTask = await this.findOneTaskById(wantedUser.userTaskIds[i])
-      if (foundTask.defineDate >= startDateRange && foundTask.defineDate <= endDateRange)
+      const foundTask = await this.findOneTaskById(wantedUser.userTaskIds[i]);
+      if (
+        foundTask.defineDate >= startDateRange &&
+        foundTask.defineDate <= endDateRange
+      )
         tasks.push(foundTask);
     }
 
