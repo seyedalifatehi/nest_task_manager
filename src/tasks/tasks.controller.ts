@@ -178,8 +178,15 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر وارد شده',
   })
-  async showEnteredUserTasks(@Request() req) {
-    return await this.tasksService.showEnteredUserTasks(req.user._id);
+  async showEnteredUserTasks(
+    @Request() req,
+    @Body() dateRangeDto: DateRangeDto,
+  ) {
+    return await this.tasksService.showEnteredUserTasks(
+      req.user._id,
+      dateRangeDto.startDateRange,
+      dateRangeDto.startDateRange,
+    );
   }
 
   @Get('showDesiredUserTasks/:username')

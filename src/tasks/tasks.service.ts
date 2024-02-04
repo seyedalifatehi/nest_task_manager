@@ -89,11 +89,19 @@ export class TasksService {
     endDateRange: Date,
   ) {
     if (role == 'SUB_ADMIN') {
-      return await this.showTasksOfSubAdmins(currentUserId, startDateRange, endDateRange);
+      return await this.showTasksOfSubAdmins(
+        currentUserId,
+        startDateRange,
+        endDateRange,
+      );
     }
 
     if (role == 'USER') {
-      return await this.showTasksOfUsers(currentUserId, startDateRange, endDateRange);
+      return await this.showTasksOfUsers(
+        currentUserId,
+        startDateRange,
+        endDateRange,
+      );
     } else {
       throw new NotFoundException('role not found');
     }
@@ -126,7 +134,7 @@ export class TasksService {
           RETURN task
     `);
 
-    return await query.all(); 
+    return await query.all();
   }
 
   // this method returns all tasks of users (in a date range)
@@ -345,17 +353,22 @@ export class TasksService {
   }
 
   // this method shows the tasks of the logged in user
-  async showEnteredUserTasks(id: string): Promise<Array<any>> {
+  async showEnteredUserTasks(
+    currentUserId: string,
+    startDateRange: Date,
+    endDateRange: Date,
+  ): Promise<Array<any>> {
     const userTasks = await db.query(aql`
       LET user = (
         FOR u IN Users
-          FILTER u._id == ${id}
+          FILTER u._id == ${currentUserId}
           RETURN u
       )[0]
       
       FILTER user && user.userTaskIds
       FOR taskId IN user.userTaskIds
         LET task = DOCUMENT(Tasks, taskId)
+        FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
         RETURN task
     `);
 
