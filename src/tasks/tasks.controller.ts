@@ -178,6 +178,21 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر وارد شده',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fromDate: {
+          type: 'string',
+          format: 'date',
+        },
+        toDate: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+    },
+  })
   async showEnteredUserTasks(
     @Request() req,
     @Body() dateRangeDto: DateRangeDto,
