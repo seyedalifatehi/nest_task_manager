@@ -236,37 +236,7 @@ export class UsersController {
 
   @Delete('deleteProfilePhoto')
   async deleteFile(@Request() req) {
-    const currentUser = await this.usersService.findOneUserById(req.user._id);
-    if (currentUser.userProfilePhotoPath.length === 0) {
-      throw new ForbiddenException('You currently dont have a profile photo');
-    }
-
-    try {
-      // Ensure that the path is a valid file path before attempting to delete
-      const filePath = currentUser.userProfilePhotoPath;
-      if (fs.existsSync(filePath)) {
-        // Use promisify to make unlink work with async/await
-        const unlinkAsync = promisify(fs.unlink);
-        await unlinkAsync(filePath);
-
-        // Clear the userProfilePhotoPath and update the user
-        currentUser.userProfilePhotoPath = '';
-        await this.usersService.updateUser(currentUser, currentUser);
-      } else {
-        throw new BadRequestException(
-          'Profile photo not found at the specified path',
-        );
-      }
-
-      return {
-        message: 'Your profile photo was deleted successfully',
-      };
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException(
-        'An error occurred while deleting the profile photo.',
-      );
-    }
+    return await this.usersService.deleteProfilePhoto(req.user._id)
   }
 
   @Get('findByUsername/:username')

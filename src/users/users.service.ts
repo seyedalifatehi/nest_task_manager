@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fsPromise from 'fs/promises';
+import { promisify } from 'util';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -283,6 +285,40 @@ export class UsersService {
       imageId: await imageId,
       message: 'photo uploaded successfully',
     };
+  }
+
+  async deleteProfilePhoto(currentUserId: string) {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.userProfilePhotoPath.length === 0) {
+      throw new ForbiddenException('You currently dont have a profile photo');
+    }
+
+    try {
+      // Ensure that the path is a valid file path before attempting to delete
+      const filePath = currentUser.userProfilePhotoPath;
+      if (fs.existsSync(filePath)) {
+        // Use promisify to make unlink work with async/await
+        const unlinkAsync = promisify(fs.unlink);
+        await unlinkAsync(filePath);
+
+        // Clear the userProfilePhotoPath and update the user
+        currentUser.userProfilePhotoPath = '';
+        await this.updateUser(currentUser, currentUser);
+      } else {
+        throw new BadRequestException(
+          'Profile photo not found at the specified path',
+        );
+      }
+
+      return {
+        message: 'Your profile photo was deleted successfully',
+      };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException(
+        'An error occurred while deleting the profile photo.',
+      );
+    }
   }
 
   // this method finds a user account based on its email
