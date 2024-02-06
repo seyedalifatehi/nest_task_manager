@@ -242,13 +242,21 @@ export class TasksController {
 
   @Delete('deleteTask/:taskKey')
   @ApiOperation({
-    summary: 'حذف کردن تسک از دیتابیس',
+    summary: 'علامت گذاری تسک به عنوان حذف شده (می تواند بازنشانی شود)',
   })
   async deleteTask(
     @Request() req,
     @Param('taskKey') taskKey: string,
   ): Promise<Object> {
     return await this.tasksService.deleteTask('Tasks/' + taskKey, req.user._id);
+  }
+
+  @Patch('recoverTask/:taskKey')
+  @ApiOperation({
+    summary: 'بازنشانی تسک',
+  })
+  async recoverTask(@Param('taskKey') taskKey: string, @Request() req) {
+    return await this.tasksService.recoverTask(taskKey, req.user._id);
   }
 
   @Delete('clearTask/:taskKey')
