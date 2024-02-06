@@ -461,6 +461,13 @@ export class TasksService {
       throw new BadRequestException('this task is already exists');
     }
 
+    const selectedUser = await this.usersService.findOneUserByUsername(
+      wantedTask.username,
+    );
+    if (selectedUser.isDeleted) {
+      throw new ForbiddenException('this task cannot be recovered');
+    }
+
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
     if (
