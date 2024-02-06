@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -73,6 +74,7 @@ export class TasksService {
     task.pending = false;
     task.isCompleted = false;
     task.defineDate = date;
+    task.isDeleted = false;
 
     const definedTask = await this.taskRepository.save(task);
 
@@ -130,7 +132,7 @@ export class TasksService {
       FOR subAdmin IN subAdmins
         FOR taskId IN subAdmin.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
-          FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
+          FILTER (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
           RETURN task
     `);
 
@@ -151,15 +153,15 @@ export class TasksService {
     }
 
     const cursor = await db.query(aql`
-      LET subAdmins = (
+      LET users = (
         FOR user IN Users
           FILTER user.role == 'USER'
           RETURN user
       )
-      FOR subAdmin IN subAdmins
-        FOR taskId IN subAdmin.userTaskIds
+      FOR user IN users
+        FOR taskId IN user.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
-          FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
+          FILTER (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
           RETURN task
     `);
 
