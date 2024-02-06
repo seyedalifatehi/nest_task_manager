@@ -381,7 +381,7 @@ export class TasksService {
       FILTER user && user.userTaskIds
       FOR taskId IN user.userTaskIds
         LET task = DOCUMENT(Tasks, taskId)
-        FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange}
+        FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange} && !task.isDeleted
         RETURN task
     `);
 
