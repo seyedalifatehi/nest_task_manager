@@ -289,7 +289,7 @@ export class UsersController {
 
   @Patch('recoverUser/:username')
   @ApiOperation({
-    summary: 'بازنشانی کاربر توسط ادمین',
+    summary: 'بازنشانی یک کاربر توسط ادمین',
   })
   async recoverUser(
     @Request() req,
@@ -298,9 +298,19 @@ export class UsersController {
     return await this.usersService.recoverUser(username, req.user._id);
   }
 
+  @Patch('recoverAllUsers')
+  @ApiOperation({
+    summary: 'بازنشانی تمام کاربران حذف شده',
+  })
+  async recoverAllUsers(
+    @Request() req,
+  ): Promise<Object> {
+    return await this.usersService.recoverAllUsers(req.user._id);
+  }
+
   @Get('getDeletedUsers')
   @ApiOperation({
-    summary: 'بازنشانی کاربر توسط ادمین',
+    summary: 'مشاهده کابرهای حذف شده توسط ادمین',
   })
   async getDeletedUsers(
     @Request() req,

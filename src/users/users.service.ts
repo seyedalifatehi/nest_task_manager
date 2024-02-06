@@ -419,6 +419,24 @@ export class UsersService {
     };
   }
 
+  // admin can recover all users with this method
+  async recoverAllUsers(currentUserId: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can recover users');
+    }
+
+    await db.query(aql`
+      FOR user IN Users
+        FILTER user.isDeleted
+        UPDATE user WITH { isDeleted: false } IN Users
+    `);
+
+    return {
+      message: 'all users recovered successfully',
+    };
+  }
+
   // admin can recover a user with this method
   async getDeletedUsers(currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
