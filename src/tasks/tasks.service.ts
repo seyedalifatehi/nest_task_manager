@@ -174,9 +174,9 @@ export class TasksService {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (wantedTask.isDeleted) {
-      throw new BadRequestException('this task is already deleted')
+      throw new BadRequestException('this task is already deleted');
     }
-    
+
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can accept tasks');
     }
@@ -199,7 +199,7 @@ export class TasksService {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (wantedTask.isDeleted) {
-      throw new BadRequestException('this task is already deleted')
+      throw new BadRequestException('this task is already deleted');
     }
 
     if ((await currentUser).username !== wantedTask.username) {
@@ -248,12 +248,13 @@ export class TasksService {
     return updatedDocument ? updatedDocument.next() : null;
   }
 
-  async changeTitleAndDescription(currentUserId: string, taskKey: string, newTitle: string, newDescription: string) {
-    await this.tasksService.changeTitle(
-      taskKey,
-      newTitle,
-      currentUserId,
-    );
+  async changeTitleAndDescription(
+    currentUserId: string,
+    taskKey: string,
+    newTitle: string,
+    newDescription: string,
+  ) {
+    await this.tasksService.changeTitle(taskKey, newTitle, currentUserId);
 
     await this.tasksService.changeDescription(
       taskKey,
@@ -277,9 +278,9 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
-    
+
     if (wantedTask.isDeleted) {
-      throw new BadRequestException('this task is already deleted')
+      throw new BadRequestException('this task is already deleted');
     }
 
     const username = wantedTask.username;
@@ -311,7 +312,7 @@ export class TasksService {
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
 
     if (wantedTask.isDeleted) {
-      throw new BadRequestException('this task is already deleted')
+      throw new BadRequestException('this task is already deleted');
     }
 
     const username = wantedTask.username;
@@ -342,9 +343,9 @@ export class TasksService {
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
     if (wantedTask.isDeleted) {
-      throw new BadRequestException('this task is already deleted')
+      throw new BadRequestException('this task is already deleted');
     }
-    
+
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
@@ -415,7 +416,8 @@ export class TasksService {
       const foundTask = await this.findOneTaskById(wantedUser.userTaskIds[i]);
       if (
         foundTask.defineDate >= startDateRange &&
-        foundTask.defineDate <= endDateRange
+        foundTask.defineDate <= endDateRange &&
+        !foundTask.isDeleted
       )
         tasks.push(foundTask);
     }
