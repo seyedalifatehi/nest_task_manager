@@ -298,6 +298,16 @@ export class UsersController {
     return await this.usersService.recoverUser(username, req.user._id);
   }
 
+  @Get('getDeletedUsers')
+  @ApiOperation({
+    summary: 'بازنشانی کاربر توسط ادمین',
+  })
+  async getDeletedUsers(
+    @Request() req,
+  ): Promise<Object> {
+    return await this.usersService.getDeletedUsers(req.user._id);
+  }
+
   @Delete('clearUser/:username')
   @ApiOperation({
     summary: 'حذف کاربر از دیتابیس توسط ادمین',

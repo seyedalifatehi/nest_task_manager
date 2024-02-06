@@ -385,7 +385,7 @@ export class UsersService {
 
     const wantedUser = await this.findOneUserByUsername(username);
     if (!wantedUser.isDeleted) {
-      throw new ForbiddenException('this user is not deleted')
+      throw new ForbiddenException('this user is not deleted');
     }
 
     await db.query(aql`
@@ -401,7 +401,7 @@ export class UsersService {
     };
   }
 
-  // admin can delete a user with this method (user can be recovered)
+  // admin can recover a user with this method
   async recoverUser(username: string, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
@@ -410,13 +410,33 @@ export class UsersService {
 
     const wantedUser = await this.findOneUserByUsername(username);
     if (!wantedUser.isDeleted) {
-      throw new ForbiddenException('this user is already exists')
+      throw new ForbiddenException('this user is already exists');
     }
 
     await this.updateUser(currentUser, { isDeleted: false });
     return {
       message: 'user recovered successfully',
     };
+  }
+
+  // admin can recover a user with this method
+  async getDeletedUsers(currentUserId: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can see deleted users');
+    }
+
+    const usersQuery = await db.query(aql`
+      FOR u IN Users
+        FILTER u.isDeleted
+        RETURN {
+          "username": u.username,
+          "email": u.email,
+          "role": u.role
+        }
+    `);
+
+    return await usersQuery.all();
   }
 
   // admin can delete a user with this method (user can be recovered)
@@ -428,7 +448,7 @@ export class UsersService {
 
     const wantedUser = await this.findOneUserByUsername(username);
     if (wantedUser.isDeleted) {
-      throw new ForbiddenException('this user is already deleted')
+      throw new ForbiddenException('this user is already deleted');
     }
 
     await db.query(aql`
@@ -437,7 +457,7 @@ export class UsersService {
           FILTER t._id == taskId
           LIMIT 1
           UPDATE t WITH { isDeleted: true } IN Tasks
-    `)
+    `);
 
     await this.updateUser(currentUser, { isDeleted: true });
     return {
