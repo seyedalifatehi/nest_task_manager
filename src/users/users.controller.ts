@@ -276,14 +276,25 @@ export class UsersController {
     };
   }
 
-  @Delete(':username')
+  @Delete('deleteUser/:username')
   @ApiOperation({
-    summary: 'حذف کاربر توسط ادمین',
+    summary: 'علامت گذاری کاربر به عنوان حذف شده توسط ادمین',
   })
-  async remove(
+  async deleteUser(
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return await this.usersService.removeUser(username, req.user._id);
+    return await this.usersService.clearUser(username, req.user._id);
+  }
+
+  @Delete('clearUser/:username')
+  @ApiOperation({
+    summary: 'حذف کاربر از دیتابیس توسط ادمین',
+  })
+  async clearUser(
+    @Request() req,
+    @Param('username') username: string,
+  ): Promise<Object> {
+    return await this.usersService.clearUser(username, req.user._id);
   }
 }

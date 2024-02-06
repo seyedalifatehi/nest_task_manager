@@ -376,14 +376,17 @@ export class UsersService {
     return updatedDocument ? updatedDocument : null;
   }
 
-  // admin can remove a user with this method
-  async removeUser(username: string, currentUserId: string): Promise<Object> {
+  // admin can clear a user from database with this method
+  async clearUser(username: string, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenException('only admin can delete users');
     }
 
     const wantedUser = await this.findOneUserByUsername(username);
+    if (!wantedUser.isDeleted) {
+      throw new ForbiddenException('this user is not deleted')
+    }
 
     await db.query(aql`
       FOR taskId IN ${wantedUser.userTaskIds}
@@ -394,7 +397,25 @@ export class UsersService {
 
     await this.userRepository.removeBy({ username });
     return {
-      message: 'user removed successfully',
+      message: 'user cleared successfully',
+    };
+  }
+
+  // admin can delete a user with this method (user can be recovered)
+  async deleteUser(username: string, currentUserId: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can delete users');
+    }
+
+    const wantedUser = await this.findOneUserByUsername(username);
+    if (wantedUser.isDeleted) {
+      throw new ForbiddenException('this user is already deleted')
+    }
+
+    await this.updateUser(currentUser, { isDeleted: true });
+    return {
+      message: 'user deleted successfully',
     };
   }
 
