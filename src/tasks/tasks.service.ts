@@ -158,6 +158,7 @@ export class TasksService {
           FILTER user.role == 'USER'
           RETURN user
       )
+
       FOR user IN users
         FOR taskId IN user.userTaskIds
           LET task = DOCUMENT(Tasks, taskId)
@@ -172,6 +173,10 @@ export class TasksService {
   async acceptTask(taskKey: string, currentUserId: string): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    if (wantedTask.isDeleted) {
+      throw new BadRequestException('this task is already deleted')
+    }
+    
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException('only admin can accept tasks');
     }
@@ -193,6 +198,10 @@ export class TasksService {
   ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    if (wantedTask.isDeleted) {
+      throw new BadRequestException('this task is already deleted')
+    }
+
     if ((await currentUser).username !== wantedTask.username) {
       throw new ForbiddenException(
         'only the user that the task is defined for can make this task pending',
