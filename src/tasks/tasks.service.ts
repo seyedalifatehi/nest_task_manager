@@ -430,6 +430,28 @@ export class TasksService {
     return tasks;
   }
 
+  // this method deletes a task (can be recovered)
+  async deleteTask(taskKey: string, currentUserId: string): Promise<any> {
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
+
+    const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    if (wantedTask.isDeleted) {
+      throw new BadRequestException('this task is already deleted');
+    }
+
+    const username = wantedTask.username;
+    const wantedUser = await this.usersService.findOneUserByUsername(username);
+    if (
+      !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
+    ) {
+      throw new ForbiddenException(
+        'you are not allowed to delete the task of this user',
+      );
+    }
+
+    return await this.updateTask(wantedTask, { isDeleted: true });
+  }
+
   // this method clears a task
   async clearTask(_id: string, userId: string): Promise<Object> {
     const currentUser = await this.usersService.findOneUserById(userId);
