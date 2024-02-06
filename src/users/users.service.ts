@@ -55,7 +55,8 @@ export class UsersService {
             "username": ${user.username},
             "email": ${user.email},
             "password": ${user.password},
-            "userProfilePhotoPath": ${''}
+            "userProfilePhotoPath": ${''},
+            "isDeleted": ${false}
           } INTO Users
           
           RETURN {
@@ -83,7 +84,7 @@ export class UsersService {
     if (role) {
       const usersQuery = await db.query(aql`
         FOR u IN Users
-          FILTER u.role == ${role} 
+          FILTER u.role == ${role} && !u.isDeleted
           RETURN {
             "username": u.username,
             "email": u.email,
@@ -107,6 +108,7 @@ export class UsersService {
 
     const allUsersQuery = await db.query(aql`
       FOR u IN Users
+        FILTER !u.isDeleted
         RETURN {
           "username": u.username,
           "email": u.email,
@@ -171,7 +173,7 @@ export class UsersService {
     }
 
     const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
-    if (!wantedUser) {
+    if (!wantedUser && wantedUser.isDeleted) {
       throw new NotFoundException('User Not Found');
     }
 
