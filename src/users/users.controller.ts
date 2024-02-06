@@ -278,13 +278,24 @@ export class UsersController {
 
   @Delete('deleteUser/:username')
   @ApiOperation({
-    summary: 'علامت گذاری کاربر به عنوان حذف شده توسط ادمین',
+    summary: '(قابل بازنشانی) علامت گذاری کاربر به عنوان حذف شده توسط ادمین',
   })
   async deleteUser(
     @Request() req,
     @Param('username') username: string,
   ): Promise<Object> {
-    return await this.usersService.clearUser(username, req.user._id);
+    return await this.usersService.deleteUser(username, req.user._id);
+  }
+
+  @Patch('recoverUser/:username')
+  @ApiOperation({
+    summary: 'بازنشانی کاربر توسط ادمین',
+  })
+  async recoverUser(
+    @Request() req,
+    @Param('username') username: string,
+  ): Promise<Object> {
+    return await this.usersService.recoverUser(username, req.user._id);
   }
 
   @Delete('clearUser/:username')

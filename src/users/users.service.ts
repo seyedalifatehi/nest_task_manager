@@ -402,6 +402,24 @@ export class UsersService {
   }
 
   // admin can delete a user with this method (user can be recovered)
+  async recoverUser(username: string, currentUserId: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can recover users');
+    }
+
+    const wantedUser = await this.findOneUserByUsername(username);
+    if (!wantedUser.isDeleted) {
+      throw new ForbiddenException('this user is already exists')
+    }
+
+    await this.updateUser(currentUser, { isDeleted: false });
+    return {
+      message: 'user recovered successfully',
+    };
+  }
+
+  // admin can delete a user with this method (user can be recovered)
   async deleteUser(username: string, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
