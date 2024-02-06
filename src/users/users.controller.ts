@@ -220,6 +220,10 @@ export class UsersController {
     @Param('username') username: string,
   ): Promise<StreamableFile> {
     const wantedUser = await this.usersService.findOneUserByUsername(username);
+    if (wantedUser.isDeleted) {
+      throw new NotFoundException('User not found')
+    }
+
     if (wantedUser.userProfilePhotoPath.length === 0) {
       throw new NotFoundException('this user doesnt have profile photo');
     }
