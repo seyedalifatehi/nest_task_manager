@@ -431,6 +431,14 @@ export class UsersService {
       throw new ForbiddenException('this user is already deleted')
     }
 
+    await db.query(aql`
+      FOR taskId IN ${wantedUser.userTaskIds}
+        FOR t IN Tasks
+          FILTER t._id == taskId
+          LIMIT 1
+          UPDATE t WITH { isDeleted: true } IN Tasks
+    `)
+
     await this.updateUser(currentUser, { isDeleted: true });
     return {
       message: 'user deleted successfully',
