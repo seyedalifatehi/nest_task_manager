@@ -481,6 +481,24 @@ export class TasksService {
     return await this.updateTask(wantedTask, { isDeleted: false });
   }
 
+  // this method recovers a task
+  async recoverAllTasks(currentUserId: string): Promise<any> {
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
+    if (currentUser.role != 'ADMIN') {
+      throw new ForbiddenException('only admin can recover all tasks');
+    }
+
+    const recoveredTasks = await db.query(aql`
+      FOR t IN Tasks
+        FOR u IN Users
+          FILTER u.username == t.username
+          FILTER !u.isDeleted
+          UPDATE t WITH { isDeleted: false } IN Tasks
+    `);
+
+    return await recoveredTasks.all();
+  }
+
   // this method clears a task from database
   async clearTask(_id: string, userId: string): Promise<Object> {
     const currentUser = await this.usersService.findOneUserById(userId);

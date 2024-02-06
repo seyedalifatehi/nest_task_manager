@@ -259,6 +259,14 @@ export class TasksController {
     return await this.tasksService.recoverTask(taskKey, req.user._id);
   }
 
+  @Patch('recoverAllTasks')
+  @ApiOperation({
+    summary: 'بازنشانی تمامی تسک ها',
+  })
+  async recoverAllTasks(@Request() req) {
+    return await this.tasksService.recoverAllTasks(req.user._id);
+  }
+
   @Delete('clearTask/:taskKey')
   @ApiOperation({
     summary: 'حذف کردن تسک از دیتابیس',
