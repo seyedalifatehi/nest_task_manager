@@ -242,12 +242,12 @@ export class TasksController {
 
   @Delete(':taskKey')
   @ApiOperation({
-    summary: 'حذف کردن تسک',
+    summary: 'حذف کردن تسک از دیتابیس',
   })
-  async removeTask(
+  async clearTask(
     @Request() req,
     @Param('taskKey') taskKey: string,
   ): Promise<Object> {
-    return await this.tasksService.removeTask('Tasks/' + taskKey, req.user._id);
+    return await this.tasksService.clearTask('Tasks/' + taskKey, req.user._id);
   }
 }

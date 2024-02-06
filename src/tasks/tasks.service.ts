@@ -430,8 +430,8 @@ export class TasksService {
     return tasks;
   }
 
-  // this method removes a task
-  async removeTask(_id: string, userId: string): Promise<Object> {
+  // this method clears a task
+  async clearTask(_id: string, userId: string): Promise<Object> {
     const currentUser = await this.usersService.findOneUserById(userId);
 
     const wantedTask = await this.findOneTaskById(_id);
@@ -439,11 +439,15 @@ export class TasksService {
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
 
+    if (!wantedTask.isDeleted) {
+      throw new ForbiddenException('this task is not deleted yet');
+    }
+
     if (
       !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
     ) {
       throw new ForbiddenException(
-        'you are not allowed to remove the task of this user',
+        'you are not allowed to clear the task of this user',
       );
     }
 
@@ -453,7 +457,7 @@ export class TasksService {
     this.usersService.updateUser(wantedUser, { userTaskIds: taskIdsArray });
 
     return {
-      message: 'task deleted successfully',
+      message: 'task cleared successfully',
     };
   }
 }
