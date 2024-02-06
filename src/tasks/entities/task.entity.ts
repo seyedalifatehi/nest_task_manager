@@ -40,4 +40,7 @@ export class TaskEntity extends ArangoDocument {
     example: new Date('2024-12-31T00:00:00.000Z'),
   })
   deadlineDate: Date;
+
+  @ApiProperty({ description: 'isDeleted', example: 'true' })
+  isDeleted: boolean;
 }
