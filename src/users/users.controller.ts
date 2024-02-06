@@ -208,27 +208,7 @@ export class UsersController {
     image: Express.Multer.File,
     @Request() req,
   ) {
-    const currentUser = await this.usersService.findOneUserById(req.user._id);
-    if (currentUser.userProfilePhotoPath.length !== 0) {
-      throw new ForbiddenException(
-        'you currently have profile photo. for set a new profile photo you should delete your profile photo first',
-      );
-    }
-
-    const imageId = await uuidv4();
-    const folderPath: string = './images/profiles/';
-    const imageBuffer = image.buffer;
-    const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
-    await fsPromise.writeFile(imagePath, imageBuffer);
-
-    console.log(imagePath);
-    currentUser.userProfilePhotoPath = imagePath;
-    await this.usersService.updateUser(currentUser, currentUser);
-
-    return {
-      imageId: await imageId,
-      message: 'photo uploaded successfully',
-    };
+    return await this.usersService.uploadProfilePhoto(req.user._id, image);
   }
 
   @Get('downloadProfilePhoto/:username')
@@ -268,12 +248,14 @@ export class UsersController {
         // Use promisify to make unlink work with async/await
         const unlinkAsync = promisify(fs.unlink);
         await unlinkAsync(filePath);
-      
+
         // Clear the userProfilePhotoPath and update the user
         currentUser.userProfilePhotoPath = '';
         await this.usersService.updateUser(currentUser, currentUser);
       } else {
-        throw new BadRequestException('Profile photo not found at the specified path');
+        throw new BadRequestException(
+          'Profile photo not found at the specified path',
+        );
       }
 
       return {
@@ -281,7 +263,9 @@ export class UsersController {
       };
     } catch (error) {
       console.error(error);
-      throw new BadRequestException('An error occurred while deleting the profile photo.');
+      throw new BadRequestException(
+        'An error occurred while deleting the profile photo.',
+      );
     }
   }
 

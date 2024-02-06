@@ -7,6 +7,9 @@ import { InjectRepository, ArangoRepository } from 'nest-arango';
 import { aql, Database } from 'arangojs';
 import { UserEntity } from './entities/user.entity';
 import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import * as fsPromise from 'fs/promises';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -255,6 +258,30 @@ export class UsersService {
       message: 'Your email has changed successfully!',
       yourOldEmail: oldEmail,
       yourNewEmail: newEmail,
+    };
+  }
+
+  async uploadProfilePhoto(currentUserId: string, image: Express.Multer.File) {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.userProfilePhotoPath.length !== 0) {
+      throw new ForbiddenException(
+        'you currently have profile photo. for set a new profile photo you should delete your profile photo first',
+      );
+    }
+
+    const imageId = await uuidv4();
+    const folderPath: string = './images/profiles/';
+    const imageBuffer = image.buffer;
+    const imagePath = path.join(folderPath, `${currentUser.username}.jpeg`);
+    await fsPromise.writeFile(imagePath, imageBuffer);
+
+    console.log(imagePath);
+    currentUser.userProfilePhotoPath = imagePath;
+    await this.updateUser(currentUser, currentUser);
+
+    return {
+      imageId: await imageId,
+      message: 'photo uploaded successfully',
     };
   }
 
