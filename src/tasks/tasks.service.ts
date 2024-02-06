@@ -277,6 +277,10 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+    
+    if (wantedTask.isDeleted) {
+      throw new BadRequestException('this task is already deleted')
+    }
 
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
@@ -305,6 +309,10 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(id);
 
     const wantedTask = await this.findOneTaskById('Tasks/' + taskKey);
+
+    if (wantedTask.isDeleted) {
+      throw new BadRequestException('this task is already deleted')
+    }
 
     const username = wantedTask.username;
     const wantedUser = await this.usersService.findOneUserByUsername(username);
