@@ -122,23 +122,12 @@ export class TasksController {
     @Body() newTitleAndDescriptionDto: NewTitleAndDescriptionDto,
     @Request() req,
   ) {
-    await this.tasksService.changeTitle(
+    return await this.tasksService.changeTitleAndDescription(
+      req.user._id,
       taskKey,
       newTitleAndDescriptionDto.newTitle,
-      req.user._id,
-    );
-
-    await this.tasksService.changeDescription(
-      taskKey,
       newTitleAndDescriptionDto.newDescription,
-      req.user._id,
     );
-
-    return {
-      message: 'the title and the description of the task changed successfully',
-      newTitle: newTitleAndDescriptionDto.newTitle,
-      newDescription: newTitleAndDescriptionDto.newDescription,
-    };
   }
 
   @Patch('changeDeadlineDate/:taskKey')

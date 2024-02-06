@@ -248,6 +248,26 @@ export class TasksService {
     return updatedDocument ? updatedDocument.next() : null;
   }
 
+  async changeTitleAndDescription(currentUserId: string, taskKey: string, newTitle: string, newDescription: string) {
+    await this.tasksService.changeTitle(
+      taskKey,
+      newTitle,
+      currentUserId,
+    );
+
+    await this.tasksService.changeDescription(
+      taskKey,
+      newDescription,
+      currentUserId,
+    );
+
+    return {
+      message: 'the title and the description of the task changed successfully',
+      newTitle: newTitle,
+      newDescription: newDescription,
+    };
+  }
+
   // this method is used for changing title of a task
   async changeTitle(
     taskKey: string,
