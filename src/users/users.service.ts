@@ -120,6 +120,23 @@ export class UsersService {
     return users;
   }
 
+  async findCurrentUser(currentUserId: string) {
+    const currentUser = await db.query(aql`
+      FOR u IN Users
+        FILTER u._id == ${currentUserId} && !u.isDeleted
+        RETURN {
+          "username": u.username,
+          "email": u.email,
+          "role": u.role
+        }
+    `);
+
+    if (!currentUser) {
+      throw new NotFoundException('user not found');
+    }
+    return await currentUser.next();
+  }
+
   // user can change his/her password here
   async changePassword(
     currentUserId: string,
@@ -230,7 +247,7 @@ export class UsersService {
       FOR task IN Tasks
         FILTER task.username == ${oldUsername}
         UPDATE task WITH { username: ${newUsername} } IN Tasks
-    `)
+    `);
 
     return {
       message: 'Your username has changed successfully!',
@@ -390,7 +407,7 @@ export class UsersService {
       FOR task IN Tasks
         FILTER task.username == ${username}
         REMOVE task IN Tasks
-    `)
+    `);
 
     await this.userRepository.removeBy({ username });
     return {

@@ -93,6 +93,16 @@ export class UsersController {
     return await this.usersService.findAllUsers(role);
   }
 
+  @Get('findCurrentUser')
+  @ApiOperation({
+    summary: 'گرفتن کاربر کنونی',
+  })
+  async findCurrentUser(
+    @Request() req
+  ): Promise<any> {
+    return await this.usersService.findCurrentUser(req.user._id);
+  }
+
   @Patch('changePassword')
   @ApiOperation({
     summary: 'تغییر رمز کاربر',
