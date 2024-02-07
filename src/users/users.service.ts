@@ -431,7 +431,7 @@ export class UsersService {
   async recoverAllUsers(currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can recover users');
+      throw new ForbiddenException('only admin can recover all users');
     }
 
     await db.query(aql`
