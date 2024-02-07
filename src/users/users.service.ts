@@ -471,11 +471,10 @@ export class UsersService {
     }
 
     await db.query(aql`
-      FOR taskId IN ${wantedUser.userTaskIds}
-        FOR t IN Tasks
-          FILTER t._id == taskId
-          LIMIT 1
-          UPDATE t WITH { isDeleted: true } IN Tasks
+      FOR t IN Tasks
+        FILTER t.username == ${username}
+        LIMIT 1
+        UPDATE t WITH { isDeleted: true } IN Tasks
     `);
 
     await db.query(aql`
