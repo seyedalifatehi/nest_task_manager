@@ -239,6 +239,9 @@ export class UsersController {
   }
 
   @Delete('deleteProfilePhoto')
+  @ApiOperation({
+    summary: 'حذف عکس پروفایل',
+  })
   async deleteFile(@Request() req) {
     return await this.usersService.deleteProfilePhoto(req.user._id);
   }
