@@ -221,7 +221,7 @@ export class UsersController {
   ): Promise<StreamableFile> {
     const wantedUser = await this.usersService.findOneUserByUsername(username);
     if (wantedUser.isDeleted) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException('Username not found');
     }
 
     if (wantedUser.userProfilePhotoPath.length === 0) {
@@ -240,7 +240,7 @@ export class UsersController {
 
   @Delete('deleteProfilePhoto')
   async deleteFile(@Request() req) {
-    return await this.usersService.deleteProfilePhoto(req.user._id)
+    return await this.usersService.deleteProfilePhoto(req.user._id);
   }
 
   @Get('findByUsername/:username')
@@ -252,6 +252,11 @@ export class UsersController {
   ): Promise<Object> {
     const selectedUser =
       await this.usersService.findOneUserByUsername(username);
+
+    if (selectedUser.isDeleted) {
+      throw new NotFoundException('Username Not Found');
+    }
+
     return {
       username: selectedUser.username,
       email: selectedUser.email,
@@ -302,9 +307,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'بازنشانی تمام کاربران حذف شده',
   })
-  async recoverAllUsers(
-    @Request() req,
-  ): Promise<Object> {
+  async recoverAllUsers(@Request() req): Promise<Object> {
     return await this.usersService.recoverAllUsers(req.user._id);
   }
 
@@ -312,9 +315,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'مشاهده کابرهای حذف شده توسط ادمین',
   })
-  async getDeletedUsers(
-    @Request() req,
-  ): Promise<Object> {
+  async getDeletedUsers(@Request() req): Promise<Object> {
     return await this.usersService.getDeletedUsers(req.user._id);
   }
 
