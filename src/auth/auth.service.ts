@@ -14,7 +14,7 @@ export class AuthService {
     console.log(user);
     const reqUser = await this.usersService.findOneUserByEmail(user.email);
     if (reqUser.isDeleted) {
-      throw new NotFoundException('User not found!')
+      throw new NotFoundException('User not found')
     }
 
     if ((reqUser?.password !== user.password) || !reqUser) {
