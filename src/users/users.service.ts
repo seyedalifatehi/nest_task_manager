@@ -413,7 +413,7 @@ export class UsersService {
       throw new ForbiddenException('this user already exists');
     }
 
-    await this.updateUser(currentUser, { isDeleted: false });
+    await this.updateUser(wantedUser, { isDeleted: false });
 
     return {
       message: 'user recovered successfully',
@@ -479,7 +479,7 @@ export class UsersService {
     `);
 
     await db.query(aql`
-      UPDATE ${currentUser} WITH { isDeleted: true } IN Users
+      UPDATE ${wantedUser} WITH { isDeleted: true } IN Users
     `);
 
     return {
