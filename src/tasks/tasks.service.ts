@@ -113,6 +113,10 @@ export class TasksService {
     endDateRange: Date,
   ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
+    if (startDateRange > endDateRange) {
+      throw new BadRequestException('start date range cannot be higher than end date range');
+    }
+
     if ((await currentUser).role !== 'ADMIN') {
       throw new ForbiddenException(
         'only admin can see the tasks of sub admins',
@@ -357,7 +361,7 @@ export class TasksService {
   ): Promise<Array<any>> {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
     if (currentUser.isDeleted) {
-      throw new NotFoundException('Id Not Found')
+      throw new NotFoundException('Id Not Found');
     }
 
     const userTasks = await db.query(aql`
@@ -395,7 +399,7 @@ export class TasksService {
       FOR task IN Tasks
         FILTER task.username == ${wantedUser.username} && task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange} && !task.isDeleted
         RETURN task
-    `)
+    `);
 
     if (tasks.count === 0) {
       throw new ForbiddenException('there is no task for showing');
