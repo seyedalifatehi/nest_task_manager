@@ -140,6 +140,10 @@ export class TasksService {
     endDateRange: Date,
   ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
+    if (startDateRange > endDateRange) {
+      throw new BadRequestException('start date range cannot be higher than end date range');
+    }
+
     if ((await currentUser).role == 'USER') {
       throw new ForbiddenException(
         'only admin and sub admins can see the tasks of users',
