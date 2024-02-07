@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fsPromise from 'fs/promises';
 import { promisify } from 'util';
+import { NewUsernameAndEmailDto } from './dto/new-un-and-email.dto';
 
 const db = new Database({
   url: 'http://localhost:8529',
@@ -51,7 +52,6 @@ export class UsersService {
           FILTER !isUserExist
           INSERT {
             "role": "USER",
-            "userTaskIds": ${[]},
             "username": ${user.username},
             "email": ${user.email},
             "password": ${user.password},
@@ -227,12 +227,10 @@ export class UsersService {
     });
 
     await db.query(aql`
-      FOR taskId IN ${currentUser.userTaskIds}
-        FOR task IN Tasks
-          FILTER task._id == taskId
-          LIMIT 1
-          UPDATE { _key: task._key, username: ${newUsername} } IN Tasks
-    `);
+      FOR task IN Tasks
+        FILTER task.username == ${oldUsername}
+        UPDATE task WITH { username: ${newUsername} } IN Tasks
+    `)
 
     return {
       message: 'Your username has changed successfully!',
@@ -389,11 +387,10 @@ export class UsersService {
     }
 
     await db.query(aql`
-      FOR taskId IN ${wantedUser.userTaskIds}
-        FOR task IN Tasks
-          FILTER task._id == taskId
-          REMOVE task IN Tasks
-    `);
+      FOR task IN Tasks
+        FILTER task.username == ${username}
+        REMOVE task IN Tasks
+    `)
 
     await this.userRepository.removeBy({ username });
     return {
