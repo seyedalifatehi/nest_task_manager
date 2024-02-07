@@ -76,11 +76,11 @@ export class TasksController {
     schema: {
       type: 'object',
       properties: {
-        fromDate: {
+        startDateRange: {
           type: 'string',
           format: 'date',
         },
-        toDate: {
+        endDateRange: {
           type: 'string',
           format: 'date',
         },
