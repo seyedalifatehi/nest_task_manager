@@ -380,7 +380,7 @@ export class UsersService {
   async clearUser(username: string, currentUserId: string): Promise<Object> {
     const currentUser = await this.findOneUserById(currentUserId);
     if (currentUser.role !== 'ADMIN') {
-      throw new ForbiddenException('only admin can delete users');
+      throw new ForbiddenException('only admin can clear a user from database');
     }
 
     const wantedUser = await this.findOneUserByUsername(username);
@@ -398,6 +398,29 @@ export class UsersService {
     await this.userRepository.removeBy({ username });
     return {
       message: 'user cleared successfully',
+    };
+  }
+
+  // admin can clear all users from database with this method
+  async clearAllDeletedUsers(currentUserId: string): Promise<Object> {
+    const currentUser = await this.findOneUserById(currentUserId);
+    if (currentUser.role !== 'ADMIN') {
+      throw new ForbiddenException('only admin can delete users');
+    }
+
+    await db.query(aql`
+      FOR user IN Users
+        FILTER user.isDeleted
+        
+        FOR task IN Tasks
+          FILTER task.username == user.username
+          REMOVE task IN Tasks
+        
+        REMOVE user IN Users        
+    `);
+
+    return {
+      message: 'all users cleared successfully',
     };
   }
 

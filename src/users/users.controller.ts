@@ -329,4 +329,12 @@ export class UsersController {
   ): Promise<Object> {
     return await this.usersService.clearUser(username, req.user._id);
   }
+
+  @Delete('clearAllDeletedUsers')
+  @ApiOperation({
+    summary: 'حذف کاربران علامت گذاری شده به عنوان حذف شده از دیتابیس توسط ادمین',
+  })
+  async clearAllDeletedUsers(@Request() req): Promise<Object> {
+    return await this.usersService.clearAllDeletedUsers(req.user._id);
+  }
 }
