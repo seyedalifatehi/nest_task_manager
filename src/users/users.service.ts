@@ -483,7 +483,6 @@ export class UsersService {
     await db.query(aql`
       FOR t IN Tasks
         FILTER t.username == ${username}
-        LIMIT 1
         UPDATE t WITH { isDeleted: true } IN Tasks
     `);
 
