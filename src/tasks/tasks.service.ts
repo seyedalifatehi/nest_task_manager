@@ -78,9 +78,6 @@ export class TasksService {
 
     const definedTask = await this.taskRepository.save(task);
 
-    wantedUser.userTaskIds.push(definedTask._id);
-    await this.usersService.updateUser(wantedUser, wantedUser);
-
     return definedTask;
   }
 
@@ -123,16 +120,9 @@ export class TasksService {
     }
 
     const query = await db.query(aql`
-      LET subAdmins = (
+      FOR task IN Tasks 
         FOR user IN Users
-          FILTER user.role == 'SUB_ADMIN'
-          RETURN user
-      )
-
-      FOR subAdmin IN subAdmins
-        FOR taskId IN subAdmin.userTaskIds
-          LET task = DOCUMENT(Tasks, taskId)
-          FILTER (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
+          FILTER task.username == user.username && user.role == 'SUB_ADMIN' && (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
           RETURN task
     `);
 
@@ -152,21 +142,14 @@ export class TasksService {
       );
     }
 
-    const cursor = await db.query(aql`
-      LET users = (
+    const query = await db.query(aql`
+      FOR task IN Tasks 
         FOR user IN Users
-          FILTER user.role == 'USER'
-          RETURN user
-      )
-
-      FOR user IN users
-        FOR taskId IN user.userTaskIds
-          LET task = DOCUMENT(Tasks, taskId)
-          FILTER (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
+          FILTER task.username == user.username && user.role == 'USER' && (task.defineDate <= ${endDateRange}) && (task.defineDate >= ${startDateRange}) && !task.isDeleted
           RETURN task
     `);
 
-    return await cursor.all();
+    return await query.all();
   }
 
   // this method make isConpleted property of tasks true
@@ -372,17 +355,14 @@ export class TasksService {
     startDateRange: Date,
     endDateRange: Date,
   ): Promise<Array<any>> {
+    const currentUser = await this.usersService.findOneUserById(currentUserId);
+    if (currentUser.isDeleted) {
+      throw new NotFoundException('Id Not Found')
+    }
+
     const userTasks = await db.query(aql`
-      LET user = (
-        FOR u IN Users
-          FILTER u._id == ${currentUserId}
-          RETURN u
-      )[0]
-      
-      FILTER user && user.userTaskIds
-      FOR taskId IN user.userTaskIds
-        LET task = DOCUMENT(Tasks, taskId)
-        FILTER task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange} && !task.isDeleted
+      FOR task IN Tasks
+        FILTER task.username == ${currentUser.username} && task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange} && !task.isDeleted
         RETURN task
     `);
 
@@ -411,23 +391,17 @@ export class TasksService {
       );
     }
 
-    const tasks = [];
-    for (let i = 0; i < wantedUser.userTaskIds.length; i++) {
-      const foundTask = await this.findOneTaskById(wantedUser.userTaskIds[i]);
-      if (
-        foundTask.defineDate >= startDateRange &&
-        foundTask.defineDate <= endDateRange &&
-        !foundTask.isDeleted
-      )
-        tasks.push(foundTask);
-    }
+    const tasks = await db.query(aql`
+      FOR task IN Tasks
+        FILTER task.username == ${wantedUser.username} && task.defineDate <= ${endDateRange} && task.defineDate >= ${startDateRange} && !task.isDeleted
+        RETURN task
+    `)
 
-    console.log(tasks);
-    if (tasks.length === 0) {
+    if (tasks.count === 0) {
       throw new ForbiddenException('there is no task for showing');
     }
 
-    return tasks;
+    return await tasks.all();
   }
 
   // this method deletes a task (can be recovered)
@@ -519,11 +493,6 @@ export class TasksService {
         'you are not allowed to clear the task of this user',
       );
     }
-
-    await this.taskRepository.removeBy({ _id });
-    const taskIdsArray = wantedUser.userTaskIds;
-    taskIdsArray.splice(taskIdsArray.indexOf(_id), 1);
-    this.usersService.updateUser(wantedUser, { userTaskIds: taskIdsArray });
 
     return {
       message: 'task cleared successfully',
