@@ -438,6 +438,9 @@ export class UsersService {
       FOR user IN Users
         FILTER user.isDeleted
         UPDATE user WITH { isDeleted: false } IN Users
+        FOR task IN Tasks
+          FILTER task.username == user.username
+          UPDATE task WITH { isDeleted: false } IN Tasks
     `);
 
     return {
