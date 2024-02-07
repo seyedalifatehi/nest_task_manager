@@ -364,8 +364,9 @@ export class TasksService {
     endDateRange: Date,
   ): Promise<Array<any>> {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
-    if (currentUser.isDeleted) {
-      throw new NotFoundException('Id Not Found');
+
+    if (startDateRange > endDateRange) {
+      throw new BadRequestException('start date range cannot be higher than end date range');
     }
 
     const userTasks = await db.query(aql`
