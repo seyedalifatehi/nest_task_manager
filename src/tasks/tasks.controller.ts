@@ -72,25 +72,10 @@ export class TasksController {
     name: 'role',
     enum: ['USER', 'SUB_ADMIN'],
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        startDateRange: {
-          type: 'string',
-          format: 'date',
-        },
-        endDateRange: {
-          type: 'string',
-          format: 'date',
-        },
-      },
-    },
-  })
   async showTasksOfMembers(
     @Request() req,
     @Query('role') role: 'USER' | 'SUB_ADMIN',
-    @Body() dateRangeDto: DateRangeDto,
+    @Query() dateRangeDto: DateRangeDto,
   ): Promise<any> {
     return await this.tasksService.showTasksOfMembers(
       req.user._id,
@@ -199,7 +184,7 @@ export class TasksController {
   })
   async showEnteredUserTasks(
     @Request() req,
-    @Body() dateRangeDto: DateRangeDto,
+    @Query() dateRangeDto: DateRangeDto,
   ) {
     return await this.tasksService.showEnteredUserTasks(
       req.user._id,
@@ -212,25 +197,10 @@ export class TasksController {
   @ApiOperation({
     summary: 'نشان دادن تسک های کاربر دلخواه',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        fromDate: {
-          type: 'string',
-          format: 'date',
-        },
-        toDate: {
-          type: 'string',
-          format: 'date',
-        },
-      },
-    },
-  })
   async showDesiredUserTasks(
     @Request() req,
     @Param('username') desiredUserUsername: string,
-    @Body() dateRangeDto: DateRangeDto,
+    @Query() dateRangeDto: DateRangeDto,
   ) {
     return await this.tasksService.showDesiredUserTasks(
       req.user._id,
@@ -282,9 +252,7 @@ export class TasksController {
   @ApiOperation({
     summary: 'حذف کردن تسک های علامت گداری شده از دیتابیس',
   })
-  async clearAllTasks(
-    @Request() req,
-  ): Promise<Object> {
+  async clearAllTasks(@Request() req): Promise<Object> {
     return await this.tasksService.clearAllTasks(req.user._id);
   }
 }
