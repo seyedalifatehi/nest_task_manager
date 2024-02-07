@@ -413,6 +413,13 @@ export class UsersService {
       throw new ForbiddenException('this user already exists');
     }
 
+    await db.query(aql`
+      FOR t IN Tasks
+        FILTER t.username == ${username}
+        LIMIT 1
+        UPDATE t WITH { isDeleted: false } IN Tasks
+    `);
+
     await this.updateUser(wantedUser, { isDeleted: false });
 
     return {
