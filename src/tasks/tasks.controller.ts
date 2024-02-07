@@ -277,4 +277,14 @@ export class TasksController {
   ): Promise<Object> {
     return await this.tasksService.clearTask('Tasks/' + taskKey, req.user._id);
   }
+
+  @Delete('clearAllTasks')
+  @ApiOperation({
+    summary: 'حذف کردن تسک های علامت گداری شده از دیتابیس',
+  })
+  async clearAllTasks(
+    @Request() req,
+  ): Promise<Object> {
+    return await this.tasksService.clearAllTasks(req.user._id);
+  }
 }

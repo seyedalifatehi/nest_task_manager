@@ -515,8 +515,27 @@ export class TasksService {
       );
     }
 
+    await this.taskRepository.removeBy({ _id })
     return {
       message: 'task cleared successfully',
+    };
+  }
+
+  // admin can clears all the tasks from database with this method
+  async clearAllTasks(userId: string): Promise<Object> {
+    const currentUser = await this.usersService.findOneUserById(userId);
+    if (currentUser.role != 'ADMIN') {
+      throw new ForbiddenException('only admin can clear all tasks from database');
+    }
+
+    await db.query(aql`
+      FOR task IN Tasks
+        FILTER task.isDeleted
+        REMOVE task IN Tasks
+    `)
+
+    return {
+      message: 'all tasks cleared successfully',
     };
   }
 }
