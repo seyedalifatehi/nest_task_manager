@@ -114,7 +114,9 @@ export class TasksService {
   ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     if (startDateRange > endDateRange) {
-      throw new BadRequestException('start date range cannot be higher than end date range');
+      throw new BadRequestException(
+        'start date range cannot be higher than end date range',
+      );
     }
 
     if ((await currentUser).role !== 'ADMIN') {
@@ -141,7 +143,9 @@ export class TasksService {
   ): Promise<any> {
     const currentUser = this.usersService.findOneUserById(currentUserId);
     if (startDateRange > endDateRange) {
-      throw new BadRequestException('start date range cannot be higher than end date range');
+      throw new BadRequestException(
+        'start date range cannot be higher than end date range',
+      );
     }
 
     if ((await currentUser).role == 'USER') {
@@ -366,7 +370,9 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
 
     if (startDateRange > endDateRange) {
-      throw new BadRequestException('start date range cannot be higher than end date range');
+      throw new BadRequestException(
+        'start date range cannot be higher than end date range',
+      );
     }
 
     const userTasks = await db.query(aql`
@@ -391,6 +397,12 @@ export class TasksService {
     const currentUser = await this.usersService.findOneUserById(currentUserId);
     const wantedUser =
       await this.usersService.findOneUserByUsername(desiredUserUsername);
+
+    if (startDateRange > endDateRange) {
+      throw new BadRequestException(
+        'start date range cannot be higher than end date range',
+      );
+    }
 
     if (
       !(await this.usersService.userAccessHandleError(currentUser, wantedUser))
