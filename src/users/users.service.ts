@@ -221,22 +221,25 @@ export class UsersService {
         LIMIT 1
         RETURN u
     `);
-
-    const oldFilePath = currentUser.userProfilePhotoPath; // Replace with your old file path
-    const newFilePath = `./images/profiles/${currentUser.username}.jpeg`; // Replace with your new file path
-
-    fs.rename(oldFilePath, newFilePath, (err) => {
-      if (err) {
-        console.error('Error renaming file:', err);
-      } else {
-        console.log('File renamed successfully');
-      }
-    });
-    currentUser.userProfilePhotoPath = newFilePath;
-    await this.updateUser(currentUser, currentUser);
-
     if (await existUser.next()) {
       throw new ForbiddenException('this username already exists');
+    }
+
+    if (currentUser.userProfilePhotoPath) {
+      const oldFilePath = currentUser.userProfilePhotoPath; // Replace with your old file path
+      console.log(oldFilePath);
+
+      const newFilePath = `./images/profiles/${newUsername}.jpeg`; // Replace with your new file path
+
+      fs.rename(oldFilePath, newFilePath, (err) => {
+        if (err) {
+          console.error('Error renaming file:', err);
+        } else {
+          console.log('File renamed successfully');
+        }
+      });
+      currentUser.userProfilePhotoPath = newFilePath;
+      await this.updateUser(currentUser, currentUser);
     }
 
     await this.updateUser(currentUser, {
