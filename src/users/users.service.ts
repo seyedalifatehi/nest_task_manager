@@ -173,7 +173,7 @@ export class UsersService {
     }
 
     const wantedUser = await this.findOneUserByUsername(selectedUserUsername);
-    if (!wantedUser && wantedUser.isDeleted) {
+    if (!wantedUser || wantedUser.isDeleted) {
       throw new NotFoundException('User Not Found');
     }
 
@@ -410,10 +410,11 @@ export class UsersService {
 
     const wantedUser = await this.findOneUserByUsername(username);
     if (!wantedUser.isDeleted) {
-      throw new ForbiddenException('this user is already exists');
+      throw new ForbiddenException('this user already exists');
     }
 
     await this.updateUser(currentUser, { isDeleted: false });
+
     return {
       message: 'user recovered successfully',
     };
@@ -477,7 +478,10 @@ export class UsersService {
           UPDATE t WITH { isDeleted: true } IN Tasks
     `);
 
-    await this.updateUser(currentUser, { isDeleted: true });
+    await db.query(aql`
+      UPDATE ${currentUser} WITH { isDeleted: true } IN Users
+    `);
+
     return {
       message: 'user deleted successfully',
     };
