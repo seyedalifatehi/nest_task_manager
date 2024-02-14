@@ -26,10 +26,12 @@ import {
 import { NewTitleAndDescriptionDto } from './dto/new-title-and-description.dto';
 import { NewDeadlineDateDto } from './dto/new-deadline-date.dto';
 import { DateRangeDto } from './dto/date-range.dto';
+import { JwtGuard } from 'src/auth2/guards/jwt-auth.guard';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
+// @UseGuards(JwtGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
