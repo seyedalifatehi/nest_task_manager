@@ -11,7 +11,7 @@ import { UsersService } from 'src/users/users.service';
     JwtModule.register({
       global: true,
       secret: `${process.env.jwt_secret}`,
-    //   signOptions: { expiresIn: '600s' },
+      signOptions: { expiresIn: '60s' },
     }),
     ArangoModule.forFeature([UserEntity]),
   ],

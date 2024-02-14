@@ -46,11 +46,9 @@ import { join } from 'path';
 import * as pdfkit from 'pdfkit'; // Import pdfkit for PDF generation
 import { Response } from 'express';
 import { promisify } from 'util';
-import { JwtGuard } from 'src/auth2/guards/jwt-auth.guard';
 
 @ApiTags('users')
 @ApiBearerAuth()
-// @UseGuards(JwtGuard)
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
