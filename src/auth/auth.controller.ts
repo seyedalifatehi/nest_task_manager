@@ -4,7 +4,7 @@ import { AuthGuard } from './auth.guard';
 import { LoginUserDto } from '../users/dto/login-user.dto'
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('login')
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(

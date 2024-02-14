@@ -9,7 +9,10 @@ import {
 import { Auth2Service } from './auth2.service';
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RefreshJwtGuard } from './guards/refresh-jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth2')
 @Controller('auth2')
 export class Auth2Controller {
   constructor(
@@ -25,8 +28,9 @@ export class Auth2Controller {
     return await this.auth2Srevice.login(req.user._id);
   }
 
+  @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {
-    this.auth2Srevice.refreshToken(req.user._id);
+    req.user._id;
   }
 }

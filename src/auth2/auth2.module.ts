@@ -5,17 +5,19 @@ import { UsersService } from 'src/users/users.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LocalStrategy } from './strategies/local-strategy';
 import { JwtStrategy } from './strategies/jwt-strategy';
+import { RefreshJwtStrategy } from './strategies/refreshToken.strategy';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   providers: [
     Auth2Service,
-    UsersService,
     JwtStrategy,
     LocalStrategy,
-    UsersService,
+    RefreshJwtStrategy,
   ],
   controllers: [Auth2Controller],
   imports: [
+    UsersModule,
     JwtModule.register({
       secret: `${process.env.jwt_secret}`,
       signOptions: {
