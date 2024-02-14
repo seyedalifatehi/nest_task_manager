@@ -4,11 +4,13 @@ import { Auth2Controller } from './auth2.controller';
 import { UsersService } from 'src/users/users.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LocalStrategy } from './strategies/local-strategy';
+import { JwtStrategy } from './strategies/jwt-strategy';
 
 @Module({
   providers: [
     Auth2Service,
     UsersService,
+    JwtStrategy,
     LocalStrategy,
     UsersService,
   ],
