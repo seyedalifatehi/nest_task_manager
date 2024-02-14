@@ -26,4 +26,7 @@ export class Auth2Controller {
       await this.usersService.findOneUserById(req.user._id),
     );
   }
+
+  @Post('refresh')
+  async refreshToken(@Request() req) {}
 }
