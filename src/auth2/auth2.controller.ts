@@ -22,11 +22,11 @@ export class Auth2Controller {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    return await this.auth2Srevice.login(
-      await this.usersService.findOneUserById(req.user._id),
-    );
+    return await this.auth2Srevice.login(req.user._id);
   }
 
   @Post('refresh')
-  async refreshToken(@Request() req) {}
+  async refreshToken(@Request() req) {
+    this.auth2Srevice.refreshToken(req.user._id);
+  }
 }

@@ -22,13 +22,20 @@ export class Auth2Service {
     return null;
   }
 
-  async login(user: UserEntity) {
-    const payload = { _id: user._id };
+  async login(userId: string) {
+    const payload = { _id: userId };
     return {
       access_token: await this.jwtService.signAsync(payload),
       refresh_token: await this.jwtService.signAsync(payload, {
         expiresIn: '7d',
       }),
+    };
+  }
+
+  async refreshToken(userId: string) {
+    const payload = { _id: userId };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 }
