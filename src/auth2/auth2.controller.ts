@@ -31,6 +31,6 @@ export class Auth2Controller {
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {
-    req.user._id;
+    return await this.auth2Srevice.refreshToken(req.user._id);
   }
 }
