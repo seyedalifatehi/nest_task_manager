@@ -97,9 +97,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'گرفتن کاربر کنونی',
   })
-  async findCurrentUser(
-    @Request() req
-  ): Promise<any> {
+  async findCurrentUser(@Request() req): Promise<any> {
     return await this.usersService.findCurrentUser(req.user._id);
   }
 
@@ -345,7 +343,8 @@ export class UsersController {
 
   @Delete('clearAllDeletedUsers')
   @ApiOperation({
-    summary: 'حذف کاربران علامت گذاری شده به عنوان حذف شده از دیتابیس توسط ادمین',
+    summary:
+      'حذف کاربران علامت گذاری شده به عنوان حذف شده از دیتابیس توسط ادمین',
   })
   async clearAllDeletedUsers(@Request() req): Promise<Object> {
     return await this.usersService.clearAllDeletedUsers(req.user._id);
