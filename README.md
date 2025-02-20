@@ -10,7 +10,7 @@ A task management application built using **NestJS**, **TypeScript** and **Arang
 ## Installation
 To install the required dependencies:
 ```bash
-$ pnpm install
+$ yarn install
 ```
  
 ## Usage
@@ -18,7 +18,7 @@ Run the application in different environments:
 - Development Mode:
 ```bash
 $ docker-compose up
-$ pnpm run dev
+$ yarn dev
 ```
 ## License
 This project is licensed under the **MIT License**.
